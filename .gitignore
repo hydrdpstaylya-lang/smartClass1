@@ -9,3 +9,23 @@ Debug*/Debug*\ Libs
 *.rbuistate
 *.xojo_uistate
 *.obsolete*
+
+# Node.js
+node_modules/
+dist/
+coverage/
+.vite/
+
+# Private environment settings
+.env
+.env.*
+!.env.example
+
+# Local databases
+*.sqlite*
+*.db
+
+# Logs and system files
+*.log
+.DS_Store
+Thumbs.db
