@@ -6,7 +6,7 @@ const elem=(tag,options={})=>{const node=document.createElement(tag);for(const [
 function notify(text,error=false){$('message').textContent=text;$('message').classList.toggle('error',error);$('message').hidden=!text;}
 function lock(message){
  controller?.abort();draft=null;savedId=null;user=null;exams=[];dirty=false;$('document').replaceChildren();$('document').hidden=true;$('history').close();$('history-list').replaceChildren();$('identity').textContent='ورود به حساب آموزگار';$('workbench').hidden=true;$('history-open').disabled=true;
- const box=$('access');box.hidden=false;box.replaceChildren(elem('p',{text:message}),elem('a',{text:'ورود از بخش کلاس و معلم',href:'/#school',target:'_top'}));
+ const box=$('access');box.hidden=false;box.replaceChildren(elem('p',{text:message}),elem('a',{text:'ورود به حساب SmartClass',href:'/#profile',target:'_top'}));
 }
 async function api(route='',body,method=body===undefined?'GET':'POST',signal){
  const response=await fetch('/api/teacher-exams'+route,{method,signal:signal||AbortSignal.timeout(100000),credentials:'same-origin',headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
