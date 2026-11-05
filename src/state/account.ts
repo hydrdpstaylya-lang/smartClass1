@@ -1,6 +1,6 @@
 import {useSyncExternalStore} from 'react'
 import {getState,importProgress,switchAccount,onProgressChange,validate} from './store'
-export type Student={id:number;name:string;username:string}
+export type Student={id:number;name:string;username:string;role:'student'|'teacher'|'admin'}
 type AccountState={user:Student|null;status:'loading'|'guest'|'ready'|'saving'|'saved'|'offline'|'conflict';message:string;recoveryCode:string}
 let state:AccountState={user:null,status:'loading',message:'',recoveryCode:''},revision=0,applying=false,timer:ReturnType<typeof setTimeout>|undefined,initialized:Promise<void>|undefined,synced=''
 const listeners=new Set<()=>void>();const set=(p:Partial<AccountState>)=>{state={...state,...p};listeners.forEach(f=>f())}
