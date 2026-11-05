@@ -31,3 +31,57 @@
 .flashcards{display:grid;grid-template-columns:1fr 1fr;gap:12px}.flashcards>button{border:1px solid #dce7d7;background:#f5faf1;border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:180px;text-align:center;transition:background .2s}.flashcards>button.flipped{background:#e1f1de;border-color:#b8d7b4}.flashcards small{font-size:9px;color:#9cb18f}.flashcards b{font-size:14px;line-height:2;color:#648754;font-weight:500}.flashcards span{font-size:8px;color:#a6b99b}@media(max-width:560px){.flashcards{grid-template-columns:1fr}.flashcards>button{min-height:150px}.flashcards b{font-size:13px}}
 
 .play-lab{background:#fff;border:1px solid #c9dfd8;border-radius:24px;padding:20px;margin-bottom:28px}.play-lab header{display:flex;justify-content:space-between;gap:16px}.play-lab header span{font-size:11px;color:#37746b;letter-spacing:2px}.play-lab canvas{width:100%;height:auto;display:block;border-radius:16px;border:1px solid #c9dfd8}.lab-game-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0}.lab-dpad{text-align:center;direction:ltr;touch-action:none}.lab-dpad button{width:45px;height:45px;margin:2px;border:0;background:#174c44;color:white;border-radius:12px;font-size:22px;touch-action:none;user-select:none}.lab-inventory{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#eaf6f1;border-radius:14px}.lab-inventory span{padding:4px 10px;background:white;border-radius:8px}.play-lab textarea{display:block;width:100%;min-height:75px}.play-lab input[type=range]{display:block;width:100%;margin:20px 0}@media(max-width:600px){.play-lab{padding:10px}.lab-game-bar>.primary{font-size:12px;padding:10px}.play-lab h2{font-size:20px}}
+
+
+/* Role-based account and teacher exam workspace */
+.admin-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 18px}
+.admin-summary>div{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:13px;padding:15px 17px;color:#43876c}
+.admin-summary>div>span{display:flex;flex-direction:column}
+.admin-summary b{font-size:19px;line-height:1.4;color:#345d47}
+.admin-summary small{font-size:10px;color:#8a9d8e}
+.admin-user-list{display:grid;gap:10px}
+.admin-user-row{display:grid;grid-template-columns:minmax(160px,1.3fr) minmax(135px,.8fr) minmax(120px,.75fr) auto;align-items:center;gap:14px;padding:13px;border:1px solid #e7eee8;border-radius:12px;background:#fcfdfc}
+.admin-user-identity{display:flex;align-items:center;gap:10px;min-width:0}
+.admin-user-identity>div{min-width:0}
+.admin-user-identity b{display:block;font-size:12px;color:#355b47}
+.admin-user-identity small{display:block;font:10px Arial;color:#8ba091;margin-top:4px;overflow-wrap:anywhere}
+.admin-role-field{margin:0;font-size:10px;min-width:0}
+.admin-role-field select{font-size:11px;padding:8px 10px}
+.admin-active-toggle{display:flex;align-items:center;gap:7px;color:#63846f;font-size:10px;white-space:nowrap}
+.admin-active-toggle svg{color:#6ba184}
+.admin-active-toggle input{margin:0}
+.admin-save{font-size:9px;min-height:34px;padding:7px 10px;white-space:nowrap}
+.exam-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr);gap:18px;align-items:start}
+.exam-builder-panel,.exam-saved-panel{margin:0;min-width:0}
+.exam-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:17px;align-items:start}
+.exam-form-grid>.field{margin:10px 0 13px;min-width:0}
+.exam-reference-field{grid-column:1/-1}
+.exam-reference-field textarea{min-height:105px}
+.exam-main-actions{margin-top:13px}
+.exam-saved-panel{position:sticky;top:15px}
+.exam-saved-list{display:grid;gap:8px}
+.exam-saved-item{display:flex;align-items:center;gap:5px;padding:7px;border:1px solid #e6eee7;border-radius:10px;background:#fbfdfb}
+.exam-saved-item.active{border-color:#9ac9aa;background:#f1f8f2}
+.exam-saved-open{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:1;min-width:0;text-align:right;padding:5px;color:#6b9278}
+.exam-saved-open>span{display:block;min-width:0}
+.exam-saved-open b{display:block;font-size:10px;color:#456c52;overflow-wrap:anywhere}
+.exam-saved-open small{display:block;font-size:8px;color:#91a295;margin-top:3px}
+.exam-delete{width:30px;height:30px;color:#a77d72}
+.exam-preview{margin-top:19px}
+.exam-preview .section-title h2{font-size:18px;margin-top:5px}
+.exam-question-list{display:grid;gap:13px}
+.exam-question{border:1px solid #e5ede6;border-radius:13px;padding:16px;background:#fdfefd}
+.exam-question-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.exam-question-title>b{font-size:12px;color:#385e48}
+.exam-question-title>span{font-size:8px;color:#8aa08e;background:#eef5ef;border-radius:6px;padding:3px 7px;white-space:nowrap}
+.exam-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0}
+.exam-options>div{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #e8eee8;border-radius:8px;background:white;font-size:10px;color:#657e6c}
+.exam-options>div.correct{border-color:#b7d9bf;background:#eff8ef;color:#34704a}
+.exam-options>div>svg{margin-right:auto}
+.exam-short-answer{font-size:11px;color:#527a60;margin:12px 0}
+.exam-answer-details{margin-top:11px;border-top:1px solid #e8eee8;padding-top:9px;font-size:10px;color:#67856e}
+.exam-answer-details summary{font-size:10px}
+.exam-answer-details p{margin-top:7px;color:#65806b;font-size:10px}
+@media(max-width:900px){.exam-layout{grid-template-columns:1fr}.exam-saved-panel{position:static}.admin-user-row{grid-template-columns:minmax(140px,1fr) minmax(120px,.8fr);}.admin-active-toggle{grid-column:1}.admin-save{grid-column:2;justify-self:end}}
+@media(max-width:560px){.admin-summary{gap:7px}.admin-summary>div{padding:11px 8px;gap:7px}.admin-summary>div>svg{width:17px}.admin-summary b{font-size:16px}.admin-summary small{font-size:8px}.admin-user-row{grid-template-columns:1fr 1fr;gap:10px;padding:11px}.admin-user-identity{grid-column:1/-1}.admin-role-field{grid-column:1}.admin-active-toggle{grid-column:2;align-self:end;padding-bottom:11px}.admin-save{grid-column:1/-1;justify-self:stretch}.exam-form-grid{grid-template-columns:1fr;gap:0}.exam-reference-field{grid-column:1}.exam-question{padding:12px}.exam-question-title{flex-direction:column;gap:6px}.exam-options{grid-template-columns:1fr}.exam-preview .section-title{flex-wrap:wrap}.exam-main-actions>*{flex:1}.exam-layout{gap:12px}}
+@media print{.exam-builder-panel,.exam-saved-panel,.exam-main-actions,.exam-preview>.microcopy{display:none!important}.exam-preview{border:0;padding:0;margin:0}.exam-question{break-inside:avoid;background:white}.exam-answer-details{display:block}.exam-answer-details summary{display:none}}
