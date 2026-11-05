@@ -85,3 +85,113 @@
 @media(max-width:900px){.exam-layout{grid-template-columns:1fr}.exam-saved-panel{position:static}.admin-user-row{grid-template-columns:minmax(140px,1fr) minmax(120px,.8fr);}.admin-active-toggle{grid-column:1}.admin-save{grid-column:2;justify-self:end}}
 @media(max-width:560px){.admin-summary{gap:7px}.admin-summary>div{padding:11px 8px;gap:7px}.admin-summary>div>svg{width:17px}.admin-summary b{font-size:16px}.admin-summary small{font-size:8px}.admin-user-row{grid-template-columns:1fr 1fr;gap:10px;padding:11px}.admin-user-identity{grid-column:1/-1}.admin-role-field{grid-column:1}.admin-active-toggle{grid-column:2;align-self:end;padding-bottom:11px}.admin-save{grid-column:1/-1;justify-self:stretch}.exam-form-grid{grid-template-columns:1fr;gap:0}.exam-reference-field{grid-column:1}.exam-question{padding:12px}.exam-question-title{flex-direction:column;gap:6px}.exam-options{grid-template-columns:1fr}.exam-preview .section-title{flex-wrap:wrap}.exam-main-actions>*{flex:1}.exam-layout{gap:12px}}
 @media print{.exam-builder-panel,.exam-saved-panel,.exam-main-actions,.exam-preview>.microcopy{display:none!important}.exam-preview{border:0;padding:0;margin:0}.exam-question{break-inside:avoid;background:white}.exam-answer-details{display:block}.exam-answer-details summary{display:none}}
+
+
+/* Raiva full-page AI and searchable question bank */
+.raiva-page{--rv-bg:#f4f8f6;--rv-card:#fff;--rv-ink:#183c36;--rv-muted:#7d958b;--rv-border:#e0ebe5;--rv-green:#16866f;--rv-green-dark:#0e5449;--rv-soft:#e8f5ee;background:var(--rv-bg);color:var(--rv-ink);border:1px solid var(--rv-border);border-radius:22px;padding:22px;min-height:calc(100dvh - 160px);display:flex;flex-direction:column;gap:18px;transition:background .2s,color .2s}
+.raiva-page.is-dark{--rv-bg:#101f1e;--rv-card:#172b28;--rv-ink:#e0eee8;--rv-muted:#9bb3a7;--rv-border:#2b4941;--rv-green:#65c7a8;--rv-green-dark:#a8ead1;--rv-soft:#203d35}
+.raiva-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:3px 2px 17px;border-bottom:1px solid var(--rv-border)}
+.raiva-brand-lockup{display:flex;align-items:center;gap:14px;min-width:0}
+.raiva-brand-mark{width:52px;height:52px;display:grid;place-items:center;flex-shrink:0;border-radius:16px 16px 6px 16px;background:linear-gradient(145deg,#168d78,#225b78);color:white;box-shadow:0 8px 20px #137d6d33}
+.raiva-kicker{display:block;font:8px Arial,sans-serif;letter-spacing:1.2px;color:var(--rv-muted);direction:ltr}
+.raiva-heading h1{font-size:23px;color:var(--rv-ink);margin:3px 0 1px}
+.raiva-heading h1 em{font-size:13px;font-style:normal;font-weight:500;color:var(--rv-muted);margin-right:7px}
+.raiva-heading p{font-size:10px;color:var(--rv-muted);margin-top:2px}
+.raiva-heading-actions{display:flex;align-items:center;gap:10px}
+.raiva-connection{display:flex;align-items:center;gap:7px;border:1px solid #b9dfcc;background:#edf8f1;color:#3a8764;border-radius:20px;padding:7px 11px;font-size:9px;white-space:nowrap}
+.raiva-connection i{width:6px;height:6px;border-radius:50%;background:#39a86e}
+.raiva-connection.local{background:#fff7e9;border-color:#eeddb8;color:#9b7a3e}
+.raiva-connection.local i{background:#d3a44f}
+.is-dark .raiva-connection{background:#1e3a30;border-color:#375a49;color:#a6dfbd}
+.is-dark .raiva-connection.local{background:#3a3322;border-color:#655234;color:#e8c77e}
+.raiva-icon-button{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--rv-border);color:var(--rv-muted);background:var(--rv-card)}
+.raiva-layout{display:grid;grid-template-columns:255px minmax(0,1fr);gap:16px;flex:1;min-height:600px}
+.raiva-sidebar{background:#102e2a;border-radius:16px;padding:16px 13px;color:#d3e6dd;display:flex;flex-direction:column;min-height:600px}
+.raiva-new-chat{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:11px;border-radius:10px;background:#d8f2e4;color:#175b48;font-size:11px;font-weight:700}
+.raiva-side-section{margin-top:22px}
+.raiva-side-title{display:flex;align-items:center;justify-content:space-between;color:#8eae9d;font-size:9px;padding:0 7px 9px}
+.raiva-history{display:grid;gap:4px;max-height:260px;overflow:auto}
+.raiva-history-item{display:flex;align-items:center;gap:4px;border-radius:8px;padding:3px 5px}
+.raiva-history-item.active{background:#21463c}
+.raiva-history-item>button:first-child{display:flex;align-items:center;gap:8px;min-width:0;flex:1;text-align:right;color:#cadbd2;font-size:9px;padding:5px 3px}
+.raiva-history-item>button:first-child>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.raiva-history-dot{width:5px;height:5px;border-radius:50%;background:#6aa990;flex-shrink:0}
+.raiva-delete{width:26px;height:26px;display:grid;place-items:center;color:#789889;border-radius:6px;opacity:.65}
+.raiva-delete:hover{background:#36584c;opacity:1}
+.raiva-bank-summary{border-top:1px solid #315046;padding-top:17px}
+.raiva-bank-count{display:flex;align-items:center;gap:9px;padding:11px 8px;color:#a4cbb7}
+.raiva-bank-count b{font-size:20px;color:#e0f0e6}
+.raiva-bank-count span{font-size:9px;color:#88aa98}
+.raiva-side-action{display:flex;align-items:center;gap:8px;width:100%;padding:9px 8px;border-radius:8px;text-align:right;color:#b5cbbf;font-size:9px}
+.raiva-side-action>svg:last-child{margin-right:auto}
+.raiva-side-action.active,.raiva-side-action:hover{background:#21463c;color:#e5f5eb}
+.raiva-sidebar-foot{display:flex;align-items:center;gap:9px;border-top:1px solid #315046;margin-top:auto;padding:15px 4px 1px}
+.raiva-avatar{width:33px;height:33px;display:grid;place-items:center;border-radius:50%;background:#dfc89f;color:#534a34;font-size:13px;font-weight:700}
+.raiva-sidebar-foot b{display:block;font-size:10px;color:#d7e8df}
+.raiva-sidebar-foot small{display:block;font-size:8px;color:#84a492;margin-top:3px}
+.raiva-main{min-width:0;min-height:600px;display:flex;flex-direction:column;background:var(--rv-card);border:1px solid var(--rv-border);border-radius:16px;overflow:hidden}
+.raiva-main-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--rv-border)}
+.raiva-main-label{font:8px Arial;letter-spacing:1px;color:var(--rv-muted)}
+.raiva-main-top h2{font-size:15px;color:var(--rv-ink);margin-top:3px}
+.raiva-quiet-button{display:flex;align-items:center;gap:7px;border:1px solid var(--rv-border);border-radius:8px;padding:8px 10px;color:var(--rv-green-dark);font-size:9px;background:var(--rv-bg)}
+.raiva-messages{flex:1;min-height:385px;max-height:620px;overflow:auto;padding:21px clamp(14px,4vw,44px);display:flex;flex-direction:column;gap:17px}
+.raiva-welcome{max-width:590px;width:100%;margin:auto;text-align:center;padding:22px 5px}
+.raiva-welcome-orb{width:66px;height:66px;margin:0 auto 16px;display:grid;place-items:center;color:#2a957b;background:radial-gradient(circle,#d4f1e3,#eff8f2);border-radius:22px}
+.is-dark .raiva-welcome-orb{background:#244b3d;color:#8dd9ba}
+.raiva-welcome h3{font-size:23px;margin:8px 0;color:var(--rv-ink)}
+.raiva-welcome>p{max-width:420px;margin:0 auto 20px;color:var(--rv-muted);font-size:11px}
+.raiva-prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;text-align:right}
+.raiva-prompts button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right;background:var(--rv-bg);border:1px solid var(--rv-border);border-radius:10px;padding:11px;color:var(--rv-ink);font-size:9px}
+.raiva-prompts button svg{color:var(--rv-green)}
+.raiva-message{display:flex;align-items:flex-start;gap:10px;max-width:850px;width:100%;margin:0 auto}
+.raiva-message.user{flex-direction:row-reverse}
+.raiva-message-icon{width:31px;height:31px;display:grid;place-items:center;flex-shrink:0;border-radius:10px;background:#e6f2ec;color:#277a61;font-size:10px;font-weight:700}
+.raiva-message.user .raiva-message-icon{background:#e6edf7;color:#5377a2}
+.raiva-message-body{min-width:0;max-width:calc(100% - 42px);background:var(--rv-bg);border:1px solid var(--rv-border);border-radius:13px;padding:12px 15px}
+.raiva-message.user .raiva-message-body{background:#eaf6ef;border-color:#d8eadf}
+.is-dark .raiva-message.user .raiva-message-body{background:#203a31;border-color:#345648}
+.raiva-message-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.raiva-message-meta b{font-size:10px;color:var(--rv-green-dark)}
+.raiva-message-meta time{font-size:8px;color:var(--rv-muted)}
+.raiva-message-body>p{font-size:11px;line-height:2.2;color:var(--rv-ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.raiva-sources{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:12px}
+.raiva-sources>span:first-child{font-size:8px;color:var(--rv-muted)}
+.raiva-source{background:var(--rv-soft);color:var(--rv-green-dark);border:1px solid var(--rv-border);border-radius:6px;padding:4px 7px;font-size:8px}
+.raiva-message-actions{display:flex;justify-content:flex-end;margin-top:6px}
+.raiva-message-actions button{display:flex;align-items:center;gap:5px;color:var(--rv-muted);font-size:8px;padding:4px}
+.raiva-thinking{display:flex;align-items:center;gap:5px;margin:0 auto;color:var(--rv-muted);font-size:9px}
+.raiva-thinking span{width:5px;height:5px;border-radius:50%;background:#51a987;animation:raivaPulse 1s infinite alternate}
+.raiva-thinking span:nth-child(2){animation-delay:.2s}.raiva-thinking span:nth-child(3){animation-delay:.4s}
+@keyframes raivaPulse{to{opacity:.25;transform:translateY(-3px)}}
+.raiva-composer{margin:0 20px 12px;border:1px solid #b9d8c9;background:var(--rv-bg);border-radius:13px;padding:11px 13px;box-shadow:0 5px 20px #24513b0b}
+.raiva-composer textarea{width:100%;min-height:57px;max-height:150px;resize:vertical;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;padding:4px!important;color:var(--rv-ink)!important;font-size:11px}
+.raiva-composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--rv-border);padding-top:8px}
+.raiva-composer-bottom>span{font-size:8px;color:var(--rv-muted)}
+.raiva-send{display:flex;align-items:center;gap:6px;background:#167e68;color:white;border-radius:8px;padding:8px 13px;font-size:9px;font-weight:600}
+.raiva-send:disabled{opacity:.45;cursor:default}
+.raiva-error{font-size:9px;color:#ad634b;padding:0 20px 10px}
+.raiva-footer{display:flex;justify-content:space-between;gap:10px;padding:9px 15px;border-top:1px solid var(--rv-border);color:var(--rv-muted);font-size:8px}
+.raiva-footer span{display:flex;align-items:center;gap:5px}
+.raiva-bank-view{flex:1;min-height:400px;padding:17px 20px;display:flex;flex-direction:column;gap:14px}
+.raiva-bank-tools{display:flex;gap:10px;align-items:center}
+.raiva-bank-tools label{display:flex;align-items:center;gap:8px;flex:1;border:1px solid var(--rv-border);border-radius:10px;padding:0 10px;color:var(--rv-muted);background:var(--rv-bg)}
+.raiva-bank-tools input{border:0!important;outline:0!important;background:transparent!important;color:var(--rv-ink)!important;font-size:10px}
+.raiva-bank-tools select{width:auto;min-width:140px;background:var(--rv-bg);color:var(--rv-ink);border-color:var(--rv-border);font-size:9px}
+.raiva-result-count{font-size:9px;color:var(--rv-muted)}
+.raiva-question-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-content:start}
+.raiva-question-card{border:1px solid var(--rv-border);border-radius:12px;background:var(--rv-bg);padding:13px;min-width:0}
+.raiva-question-top{display:flex;justify-content:space-between;gap:8px;color:var(--rv-muted);font-size:8px}
+.raiva-question-card h3{font-size:12px;color:var(--rv-ink);margin:9px 0}
+.raiva-question-card ol{list-style:none;display:grid;gap:5px;padding:0;margin:0 0 10px}
+.raiva-question-card li{display:flex;align-items:center;gap:7px;color:var(--rv-ink);background:var(--rv-card);border:1px solid var(--rv-border);border-radius:7px;padding:7px 9px;font-size:9px}
+.raiva-question-card li b{color:var(--rv-green-dark)}
+.raiva-question-card details{border-top:1px solid var(--rv-border);padding-top:8px;color:var(--rv-green-dark);font-size:9px}
+.raiva-question-card details p{font-size:9px!important;color:var(--rv-muted);margin-top:7px}
+.raiva-question-card .raiva-hint{color:#a17b3c}
+.raiva-ask-question{display:flex;align-items:center;gap:6px;margin-top:10px;color:var(--rv-green-dark);font-size:9px}
+.raiva-bank-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:55px 15px;color:var(--rv-muted);font-size:10px}
+.raiva-bank-empty b{color:var(--rv-ink);font-size:13px}
+.is-dark .raiva-message.user .raiva-message-icon{background:#283c54;color:#b6d1ef}
+@media(max-width:1000px){.raiva-layout{grid-template-columns:215px minmax(0,1fr)}.raiva-page{padding:17px}.raiva-question-list{grid-template-columns:1fr}}
+@media(max-width:760px){.raiva-page{padding:12px;border-radius:15px;gap:12px}.raiva-heading{align-items:flex-start;flex-direction:column;padding-bottom:12px}.raiva-heading-actions{width:100%;justify-content:space-between}.raiva-heading h1{font-size:20px}.raiva-heading h1 em{font-size:11px}.raiva-layout{grid-template-columns:1fr;gap:10px;min-height:0}.raiva-sidebar{min-height:0;padding:11px}.raiva-history{display:flex;overflow-x:auto;max-height:none}.raiva-history-item{min-width:145px}.raiva-side-section{margin-top:12px}.raiva-bank-summary{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-top:1px solid #315046;padding-top:10px}.raiva-bank-summary .raiva-side-title,.raiva-bank-count{grid-column:1/-1}.raiva-bank-count{padding:4px 8px}.raiva-sidebar-foot{display:none}.raiva-main{min-height:620px}.raiva-messages{min-height:350px;max-height:55dvh;padding:14px 10px}.raiva-composer{margin:0 10px 10px;padding:10px}.raiva-footer{flex-direction:column;gap:5px}.raiva-bank-view{padding:12px}.raiva-bank-tools{flex-direction:column;align-items:stretch}.raiva-bank-tools label{min-height:42px}.raiva-bank-tools select{width:100%;min-height:40px}.raiva-prompts{grid-template-columns:1fr}.raiva-message{gap:7px}.raiva-message-body{padding:10px;max-width:calc(100% - 38px)}}
+@media(max-width:390px){.raiva-heading h1 em{display:block;margin:0}.raiva-connection{font-size:8px}.raiva-main-top{padding:12px}.raiva-main-top h2{font-size:13px}.raiva-composer-bottom>span{font-size:7px}.raiva-question-card{padding:11px}}
