@@ -9,10 +9,14 @@ export const randomToken=(len=24)=>randomBytes(len).toString('base64url');
 export const ready=()=>!!(process.env.SUPABASE_URL&&process.env.SUPABASE_SERVICE_ROLE_KEY);
 export async function db(table,params='',method='GET',body=undefined,prefer='return=representation'){
  if(!ready())throw new ApiError(503,'پایگاه داده هنوز متصل نشده است. SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY را در تنظیمات Vercel قرار بده.');
- const base=String(process.env.SUPABASE_URL).replace(/\/+$/,'');
- if(!/^https:\/\/[a-zA-Z0-9.-]+\.supabase\.co$/.test(base))throw new ApiError(503,'نشانی Supabase معتبر نیست.');
+ const base=String(process.env.SUPABASE_URL).replace(/\\/+$/,'');
+ if(!/^https:\\/\\/[a-zA-Z0-9.-]+\\.supabase\\.co$/.test(base))throw new ApiError(503,'نشانی Supabase معتبر نیست.');
  const url=base+'/rest/v1/'+table+(params?'?'+params:'');
- let response;try{response=await fetch(url,{method,headers:{apikey:process.env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY,Accept:'application/json',...(body!==undefined?{'Content-Type':'application/json'}:{}),Prefer:prefer},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(12000),cache:'no-store'})}catch{throw new ApiError(503,'پایگاه داده پاسخ نداد.');}
+ const apiKey=process.env.SUPABASE_SERVICE_ROLE_KEY;
+ // New sb_secret_ keys are opaque keys, not JWTs: send them only via apikey.
+ // Legacy service_role keys are JWTs and remain compatible with both headers.
+ const authHeaders=apiKey.startsWith('sb_secret_')?{apikey:apiKey}:{apikey:apiKey,Authorization:'Bearer '+apiKey};
+ let response;try{response=await fetch(url,{method,headers:{...authHeaders,Accept:'application/json',...(body!==undefined?{'Content-Type':'application/json'}:{}),Prefer:prefer},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(12000),cache:'no-store'})}catch{throw new ApiError(503,'پایگاه داده پاسخ نداد.');}
  if(!response.ok){const info=await response.json().catch(()=>({}));if(info.code==='23505')throw new ApiError(409,'این نام کاربری یا شناسه تکراری است.');if(info.code==='42P01')throw new ApiError(503,'جدول‌های Supabase ساخته نشده‌اند. ابتدا database/setup.sql را اجرا کن.');throw new ApiError(503,'خطای ارتباط با پایگاه داده ('+response.status+').')}
  if(response.status===204||prefer==='return=minimal')return [];
  return await response.json().catch(()=>[]);
