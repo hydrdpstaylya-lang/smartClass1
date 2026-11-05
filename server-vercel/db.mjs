@@ -9,8 +9,10 @@ export const randomToken=(len=24)=>randomBytes(len).toString('base64url');
 export const ready=()=>!!(process.env.SUPABASE_URL&&process.env.SUPABASE_SERVICE_ROLE_KEY);
 export async function db(table,params='',method='GET',body=undefined,prefer='return=representation'){
  if(!ready())throw new ApiError(503,'پایگاه داده هنوز متصل نشده است. SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY را در تنظیمات Vercel قرار بده.');
- const base=String(process.env.SUPABASE_URL).replace(/\\/+$/,'');
- if(!/^https:\\/\\/[a-zA-Z0-9.-]+\\.supabase\\.co$/.test(base))throw new ApiError(503,'نشانی Supabase معتبر نیست.');
+ let base=String(process.env.SUPABASE_URL).trim();
+ while(base.endsWith('/'))base=base.slice(0,-1);
+ let parsed;try{parsed=new URL(base)}catch{parsed=null}
+ if(!parsed||parsed.protocol!=='https:'||!parsed.hostname.endsWith('.supabase.co')||parsed.hostname==='supabase.co'||parsed.pathname!=='/'||parsed.search||parsed.hash)throw new ApiError(503,'نشانی Supabase معتبر نیست.');
  const url=base+'/rest/v1/'+table+(params?'?'+params:'');
  const apiKey=process.env.SUPABASE_SERVICE_ROLE_KEY;
  // New sb_secret_ keys are opaque keys, not JWTs: send them only via apikey.
