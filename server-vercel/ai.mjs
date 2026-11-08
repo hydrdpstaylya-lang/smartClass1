@@ -27,8 +27,8 @@ export async function callAI(body,exam=false){
  let response;try{response=await fetch(ai.endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+ai.apiKey,...(claude?{'anthropic-version':'2026-10-21'}:{})},body:JSON.stringify(payload),redirect:'error',signal:AbortSignal.timeout(exam?55000:45000)})}catch{throw new ApiError(503,'ارتباط با سرویس هوش مصنوعی برقرار نشد یا زمان پاسخ تمام شد.');}
  const result=await response.json().catch(()=>({}));if(!response.ok)throw new ApiError(502,'سرویس هوش مصنوعی پاسخ موفق نداد (HTTP '+response.status+'). اعتبار و مدل API را بررسی کن.');
  if(cf&&result.success!==true)throw new ApiError(502,'Cloudflare پاسخ موفق نداد.');
- let answer=claude?(result.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\\n'):cf?result.result?.choices?.[0]?.message?.content??result.result?.response:chat?result.choices?.[0]?.message?.content:(result.output||[]).flatMap(o=>o.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('\\n');
- if(Array.isArray(answer))answer=answer.filter(v=>v.type==='text').map(v=>v.text).join('\\n');
+ let answer=claude?(result.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n'):cf?result.result?.choices?.[0]?.message?.content??result.result?.response:chat?result.choices?.[0]?.message?.content:(result.output||[]).flatMap(o=>o.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('\n');
+ if(Array.isArray(answer))answer=answer.filter(v=>v.type==='text').map(v=>v.text).join('\n');
  if(typeof answer!=='string'||!answer.trim())throw new ApiError(502,'مدل پاسخ متنی نداد. مدل یا سهمیه API را بررسی کن.');
  return{text:answer,model:ai.model,provider:ai.label};
 }
