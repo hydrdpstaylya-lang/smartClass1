@@ -11,9 +11,9 @@ export function ollamaRuntime(model){
 }
 export function aiProvider(env={}){
  const id=String(env.AI_PROVIDER||'openai').trim().toLowerCase()
- const providers={cloudflare:{label:'Cloudflare',key:'CLOUDFLARE_API_TOKEN',model:'CLOUDFLARE_MODEL',fallback:CLOUDFLARE_MODEL},openai:{label:'OpenAI',key:'OPENAI_API_KEY',model:'OPENAI_MODEL',fallback:'gpt-5-mini'},gapgpt:{label:'GapGPT',key:'GAPGPT_API_KEY',model:'GAPGPT_MODEL',fallback:'gapgpt-gemma-26b-a4b'},avalai:{label:'AvalAI',key:'AVALAI_API_KEY',model:'AVALAI_MODEL',fallback:''},groq:{label:'Groq',key:'GROQ_API_KEY',model:'GROQ_MODEL',fallback:'openai/gpt-oss-20b'},ollama:{label:'Ollama',key:null,model:'OLLAMA_MODEL',fallback:'qwen3:4b'},openrouter:{label:'OpenRouter',key:'OPENROUTER_API_KEY',model:'OPENROUTER_MODEL',fallback:OPENROUTER_MODEL}}
+ const providers={anthropic:{label:'Claude (Anthropic)',key:'ANTHROPIC_API_KEY',model:'ANTHROPIC_MODEL',fallback:'claude-sonnet-5-5'},cloudflare:{label:'Cloudflare',key:'CLOUDFLARE_API_TOKEN',model:'CLOUDFLARE_MODEL',fallback:CLOUDFLARE_MODEL},openai:{label:'OpenAI',key:'OPENAI_API_KEY',model:'OPENAI_MODEL',fallback:'gpt-5-mini'},gapgpt:{label:'GapGPT',key:'GAPGPT_API_KEY',model:'GAPGPT_MODEL',fallback:'gapgpt-gemma-26b-a4b'},avalai:{label:'AvalAI',key:'AVALAI_API_KEY',model:'AVALAI_MODEL',fallback:''},groq:{label:'Groq',key:'GROQ_API_KEY',model:'GROQ_MODEL',fallback:'openai/gpt-oss-20b'},ollama:{label:'Ollama',key:null,model:'OLLAMA_MODEL',fallback:'qwen3:4b'},openrouter:{label:'OpenRouter',key:'OPENROUTER_API_KEY',model:'OPENROUTER_MODEL',fallback:OPENROUTER_MODEL}}
  const p=Object.hasOwn(providers,id)?providers[id]:null
- if(!p)return{id,label:'Unknown',configured:false,error:'AI_PROVIDER باید openai، gapgpt، avalai، groq، ollama، openrouter یا cloudflare باشد.'}
+ if(!p)return{id,label:'Unknown',configured:false,error:'AI_PROVIDER باید anthropic، openai، gapgpt، avalai، groq، ollama، openrouter یا cloudflare باشد.'}
  const apiKey=p.key?String(env[p.key]||'').trim():'',model=String(env[p.model]||p.fallback).trim()
  let error=''
  const placeholder=v=>/^(YOUR_|PASTE_|PUT_|CHOOSE_|MODEL_ID_HERE$)/i.test(v)
@@ -22,6 +22,7 @@ export function aiProvider(env={}){
  else if(/^(sk-|gsk_)/i.test(model))error='شناسهٔ مدل باید نام مدل باشد؛ کلید را فقط در متغیر API_KEY سرویس قرار بده.'
  else if(model.length>200||/[\r\n\x00-\x1f]/.test(model))error='شناسهٔ مدل معتبر نیست.'
  let style=id==='gapgpt'?'chat':'responses',endpoint=id==='gapgpt'?'https://api.gapgpt.app/v1/chat/completions':'https://api.openai.com/v1/responses'
+ if(id==='anthropic'){style='anthropic';endpoint='https://api.anthropic.com/v1/messages';if(!error&&!/^claude-[a-z0-9-]{3,80}$/i.test(model))error='شناسهٔ مدل Claude معتبر نیست.'}
  if(id==='cloudflare'){
   style='cloudflare'
   const accountId=String(env.CLOUDFLARE_ACCOUNT_ID||'').trim()
