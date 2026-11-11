@@ -36,7 +36,7 @@ function chatAv(c, cls=''){
 }
 const peer = c => c.members.find(x => x!==meId() && x!=='@me') || c.members[0];
 const chatName = c => c.name || P[peer(c)].name;
-const visibleChats = () => chats.filter(c => c.vis.includes(state.role));
+const visibleChats = () => chats.filter(canSeeChatUI);
 const lastMsg = c => c.msgs.filter(m => !m.sys).slice(-1)[0];
 function preview(m){
   if(!m) return '';
