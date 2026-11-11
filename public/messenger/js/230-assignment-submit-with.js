@@ -51,5 +51,5 @@ function gradeModal(m, sid){
 }
 msgsEl.addEventListener('click', e => {
   const s = e.target.closest('.assign .subs'); if(!s) return;
-  const row = s.closest('.row'); if(row?._m?.assign && (state.role==='teacher' || isMe(row._m.by))) openSubs(row._m);
+  const row = s.closest('.row'); if(row?._m?.assign && (canTeachUI() || isMe(row._m.by))) openSubs(row._m);
 }, true);
