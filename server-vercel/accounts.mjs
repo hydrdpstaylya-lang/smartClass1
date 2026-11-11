@@ -10,7 +10,7 @@ export function normalizePhone(value){
   if(/^0?9[0-9]{9}$/.test(s))s='+98'+s.replace(/^0/,'');
   else s='+'+s;
  }
- return /^\\+[1-9][0-9]{7,14}$/.test(s)?s:'';
+ return /^[+][1-9][0-9]{7,14}$/.test(s)?s:'';
 }
 const recent=new Map();function accountLimit(req){const ip=String(req.headers['x-forwarded-for']||'').split(',')[0].trim()||'unknown',now=Date.now(),old=recent.get(ip),v=!old||old.until<now?{n:0,until:now+60000}:old;if(++v.n>8)throw new ApiError(429,'تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کن.');if(recent.size>1000)recent.delete(recent.keys().next().value);recent.set(ip,v)}
 async function createSession(res,record){const raw=randomToken(32);await db('sc_sessions','', 'POST',{token_hash:hash(raw),user_id:record.id,expires:Date.now()+604800000});setSessionCookie(res,raw,604800)}
