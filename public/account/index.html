@@ -50,7 +50,19 @@ button.primary:hover{background:#115342;transform:translateY(-1px)}button:disabl
    <button class="primary" id="submit" type="submit">ورود به حساب</button>
   </form>
  </section>
- <section id="profile" class="hidden"><div class="mark" style="margin:auto">✓</div><h2 id="greeting"></h2><p id="role"></p><button class="primary" id="logout" type="button">خروج از حساب</button></section>
+ <section id="profile" class="hidden">
+  <div class="mark" style="margin:auto">✓</div><h2 id="greeting"></h2><p id="role"></p>
+  <div style="margin:20px 0;padding:17px;border:1px solid var(--line);border-radius:15px;text-align:right">
+   <b style="font-size:14px">اتصال شماره تلفن به همین حساب</b>
+   <p style="font-size:12px;color:var(--muted);line-height:1.9">با این کار، بعداً می‌توانی با شماره تلفن و رمز فعلی وارد شوی؛ حساب و نقش مدرسه‌ات حفظ می‌شود.</p>
+   <form id="phoneForm">
+    <label for="bindPhone">شماره تلفن همراه</label><input id="bindPhone" type="tel" inputmode="tel" class="ltr" placeholder="+989123456789" required>
+    <label for="bindPassword">رمز فعلی حساب</label><input id="bindPassword" type="password" minlength="10" maxlength="128" required>
+    <button class="primary" id="bindPhoneBtn" type="submit">ثبت شماره برای ورود</button>
+   </form>
+  </div>
+  <button class="primary" id="logout" type="button" style="background:#edf3ef;color:#31564b">خروج از حساب</button>
+ </section>
  <p id="message" role="status" aria-live="polite"></p>
  <div id="recovery" class="hidden"><p>کد بازیابی را در محل امن نزد خودت یا والدینت نگه دار؛ این کد فقط همین بار نمایش داده می‌شود.</p><code id="generatedCode"></code></div>
  <div class="links"><a href="/messenger/">رفتن به پیام‌رسان</a><a href="/">صفحه اصلی SmartClass</a></div>
@@ -98,6 +110,12 @@ $('accountForm').onsubmit=async e=>{
   const r=await request(mode,data);view(r.user);message.textContent=mode==='register'?'حساب ساخته شد و وارد شدی.':mode==='recover'?'رمز عبور تغییر کرد.':'با موفقیت وارد شدی.';
   if(r.recoveryCode){show('recovery',true);$('generatedCode').textContent=r.recoveryCode}else show('recovery',false);
  }catch(err){message.textContent=err.message}
+ finally{btn.disabled=false}
+};
+$('phoneForm').onsubmit=async e=>{
+ e.preventDefault();const btn=$('bindPhoneBtn');btn.disabled=true;message.textContent='در حال ثبت شماره…';
+ try{await request('phone',{phone:$('bindPhone').value.trim(),password:$('bindPassword').value});$('bindPassword').value='';message.textContent='شماره با موفقیت به همین حساب متصل شد. از دفعات بعد می‌توانی با شماره وارد شوی.'}
+ catch(err){message.textContent=err.message}
  finally{btn.disabled=false}
 };
 $('logout').onclick=async()=>{
