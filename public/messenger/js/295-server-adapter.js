@@ -256,7 +256,7 @@ const SRV = (() => {
       if(!KNOWN.has(sid)){
         if(CREATING.has(sid) || c.saved) continue;
         const others = c.members.filter(x => /^u\d+$/.test(x) && x !== NET.me);
-        const type = c.type === 'personal' ? 'personal' : c.type === 'channel' ? 'channel' : (state.role === 'teacher' ? 'class' : 'group');
+        const type = c.type === 'personal' ? 'personal' : c.type === 'channel' ? 'channel' : (canTeachUI() ? 'class' : 'group');
         const sys = c.msgs.find(m => m.sys);
         CREATING.add(sid);
         add({type: 'chat.create', chat: {id: sid, type, name: c.name, sym: c.sym, g: c.g, members: others}, sys: sys && {id: sys.id, text: sys.sys}}, {create: c, sys});
@@ -446,7 +446,7 @@ const SRV = (() => {
       const ub = $('button[data-v="u"]', seg); if(ub) ub.textContent = 'افزودن به کلاس';
       const drawU = () => {
         const b = $('#ncBody'); $('#ncOk').style.display = ''; $('#ncOk').textContent = 'افزودن';
-        const classes = chats.filter(c => (c.type === 'class' || c.type === 'channel') && KNOWN.get(toS(c.id))?.admin);
+        const classes = chats.filter(c => (c.type === 'class' && c.members.includes(NET.me)) || (c.type === 'channel' && KNOWN.get(toS(c.id))?.admin));
         const people = Object.keys(P).filter(id => /^u\d+$/.test(id) && id !== NET.me);
         b.innerHTML = `<div class="fld"><label>کلاس یا کانال</label><div class="symc">${classes.map((c, i) => `<button data-c="${c.id}" class="cls ${i ? '' : 'on'}">${esc(chatName(c))}</button>`).join('') || '<small style="color:var(--muted)">هنوز کلاسی نساخته‌اید؛ از زبانهٔ «کلاس / گروه» شروع کنید.</small>'}</div></div>
           <div class="fld"><input id="ncQ" placeholder="جستجوی نام دانش‌آموز یا آموزگار…"></div>
@@ -469,7 +469,7 @@ const SRV = (() => {
       };
     };
     $('#newBtnTop').onclick = () => newChatModal('p');
-    $('#fab').onclick = () => newChatModal(state.role === 'teacher' ? 'g' : 'p');
+    $('#fab').onclick = () => newChatModal(canTeachUI() ? 'g' : 'p');
     // no simulated classmates in a real school
     Object.defineProperty(SET, 'sim', {get: () => false, set(){}, enumerable: false, configurable: true});
     document.addEventListener('visibilitychange', () => { if(!document.hidden){ sync().then(schedule); } });
@@ -539,7 +539,7 @@ const SRV = (() => {
     chats.push({id: SAVED, type: 'personal', saved: true, name: 'پیام‌های ذخیره‌شده', members: ['@me'], vis: ['student','teacher'], msgs: []});
     Object.keys(P).forEach(k => { if(!P[k].ai) delete P[k]; });
     STUDENTS.length = 0; STORIES.length = 0;
-    state.role = first.me.role;
+    state.role = first.me.admin ? 'admin' : first.me.role;
     const r = ingest(first, true); NET.me = first.me.id;
     chats.forEach(c => { c._had = c.msgs.length > 0; });
     install(); resolve();
