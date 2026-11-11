@@ -35,7 +35,7 @@ function submitAssignAnim(row, m, ab){
   });
 }
 function answerQuiz(row, m, i, el){
-  const q = m.quiz; if(state.role==='teacher' || isMe(m.by) || q.voted[meId()]!==undefined) return;
+  const q = m.quiz; if(canTeachUI() || isMe(m.by) || q.voted[meId()]!==undefined) return;
   q.voted[meId()] = i; q.votes[i]++;
   const r = el.getBoundingClientRect();
   if(i===q.correct){ confetti(r.left + r.width/2, r.top + r.height/2, 120); navigator.vibrate && navigator.vibrate(20); }
