@@ -2,22 +2,52 @@ import {randomBytes,timingSafeEqual} from 'node:crypto';
 import {ApiError,hash,randomToken,passwordHash,db,eq,currentUser,requireUser,cookieSession,setSessionCookie,input,send} from './db.mjs';
 const publicUser=u=>({id:u.id,username:u.username,name:u.name,role:u.role});
 const text=(v,max)=>String(v||'').trim().slice(0,max);
+export function normalizePhone(value){
+ const persian='۰۱۲۳۴۵۶۷۸۹',arabic='٠١٢٣٤٥٦٧٨٩';
+ let s=String(value??'').trim().replace(/[۰-۹]/g,d=>String(persian.indexOf(d))).replace(/[٠-٩]/g,d=>String(arabic.indexOf(d))).replace(/[^0-9+]/g,'');
+ if(s.startsWith('00'))s='+'+s.slice(2);
+ if(!s.startsWith('+')){
+  if(/^0?9[0-9]{9}$/.test(s))s='+98'+s.replace(/^0/,'');
+  else s='+'+s;
+ }
+ return /^\\+[1-9][0-9]{7,14}$/.test(s)?s:'';
+}
 const recent=new Map();function accountLimit(req){const ip=String(req.headers['x-forwarded-for']||'').split(',')[0].trim()||'unknown',now=Date.now(),old=recent.get(ip),v=!old||old.until<now?{n:0,until:now+60000}:old;if(++v.n>8)throw new ApiError(429,'تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کن.');if(recent.size>1000)recent.delete(recent.keys().next().value);recent.set(ip,v)}
 async function createSession(res,record){const raw=randomToken(32);await db('sc_sessions','', 'POST',{token_hash:hash(raw),user_id:record.id,expires:Date.now()+604800000});setSessionCookie(res,raw,604800)}
 export async function account(req,res,path){const method=req.method;
  if(path==='/account/me'&&method==='GET')return send(res,200,{user:await currentUser(req)});
  if(['register','login','recover'].some(x=>path==='/account/'+x)&&method==='POST'){
-  accountLimit(req);const b=await input(req,12000);
-  if(!/^[-a-zA-Z0-9_]{3,30}$/.test(b?.username||'')||typeof b.password!=='string'||b.password.length<10||b.password.length>128)throw new ApiError(400,'نام کاربری باید ۳ تا ۳۰ نویسه و رمز حداقل ۱۰ نویسه داشته باشد.');
-  const username=b.username.toLowerCase();const rows=await db('sc_users','select=*&username='+eq(username)+'&limit=1');let user=rows[0],recoveryCode;
-  if(path==='/account/register'){
-   if(user)throw new ApiError(409,'این نام کاربری قبلاً انتخاب شده است.');
+  accountLimit(req);const b=await input(req,12000),register=path==='/account/register';
+  if(typeof b?.password!=='string'||b.password.length<10||b.password.length>128)throw new ApiError(400,'رمز عبور باید دست‌کم ۱۰ نویسه داشته باشد.');
+  const suppliedPhone=typeof b.phone==='string'&&b.phone.trim().length>0;
+  const phone=suppliedPhone?normalizePhone(b.phone):'';
+  if(suppliedPhone&&!phone)throw new ApiError(400,'شماره تلفن معتبر نیست؛ آن را با پیش‌شماره کشور وارد کن، مانند ‎+989123456789.');
+  let username=typeof b.username==='string'&&/^[-a-zA-Z0-9_]{3,30}$/.test(b.username)?b.username.toLowerCase():'';
+  if(register&&!phone&&!username)throw new ApiError(400,'برای ساخت حساب، شماره تلفن همراه لازم است.');
+  if(!register&&!phone&&!username)throw new ApiError(400,'شماره تلفن یا نام کاربری را وارد کن.');
+  let user,recoveryCode;
+  if(register){
+   if(!username)username='p'+randomToken(10);
+   const duplicate=await db('sc_users','select=id&username='+eq(username)+'&limit=1');
+   if(duplicate.length)throw new ApiError(409,'این نام کاربری قبلاً انتخاب شده است.');
+   if(phone){const used=await db('sc_users','select=id&phone='+eq(phone)+'&limit=1');if(used.length)throw new ApiError(409,'این شماره تلفن قبلاً برای یک حساب ثبت شده است.');}
    const salt=randomBytes(16).toString('hex');recoveryCode=randomToken(18);
-   const created=await db('sc_users','', 'POST',{username,name:text(b.name,30)||'کاوشگر',salt,password_hash:await passwordHash(b.password,salt),recovery_hash:hash(recoveryCode),role:'student',active:true});user=created[0];
-  }else if(path==='/account/login'){
-   const attempt=await passwordHash(b.password,user?.salt||'invalid-user');const expected=Buffer.from(user?.password_hash||'00'.repeat(64),'hex');if(!user?.active||expected.length!==64||!timingSafeEqual(Buffer.from(attempt,'hex'),expected))throw new ApiError(401,'نام کاربری یا رمز درست نیست.');
+   const record={username,name:text(b.name,30)||'کاوشگر',salt,password_hash:await passwordHash(b.password,salt),recovery_hash:hash(recoveryCode),role:'student',active:true};
+   if(phone)record.phone=phone;
+   const created=await db('sc_users','', 'POST',record);user=created[0];
   }else{
-   const code=typeof b.recoveryCode==='string'?b.recoveryCode.trim():'';if(!user?.active||!code||code.length>200||hash(code)!==user.recovery_hash)throw new ApiError(401,'نام کاربری یا کد بازیابی درست نیست.');const salt=randomBytes(16).toString('hex');recoveryCode=randomToken(18);await db('sc_users','id='+eq(user.id),'PATCH',{salt,password_hash:await passwordHash(b.password,salt),recovery_hash:hash(recoveryCode)});await db('sc_sessions','user_id='+eq(user.id),'DELETE');
+   const rows=phone?await db('sc_users','select=*&phone='+eq(phone)+'&limit=1'):await db('sc_users','select=*&username='+eq(username)+'&limit=1');
+   user=rows[0];
+   if(path==='/account/login'){
+    const attempt=await passwordHash(b.password,user?.salt||'invalid-user');const expected=Buffer.from(user?.password_hash||'00'.repeat(64),'hex');
+    if(!user?.active||expected.length!==64||!timingSafeEqual(Buffer.from(attempt,'hex'),expected))throw new ApiError(401,'شماره تلفن یا رمز عبور درست نیست.');
+   }else{
+    const code=typeof b.recoveryCode==='string'?b.recoveryCode.trim():'';
+    if(!user?.active||!code||code.length>200||hash(code)!==user.recovery_hash)throw new ApiError(401,'شماره تلفن یا کد بازیابی درست نیست.');
+    const salt=randomBytes(16).toString('hex');recoveryCode=randomToken(18);
+    await db('sc_users','id='+eq(user.id),'PATCH',{salt,password_hash:await passwordHash(b.password,salt),recovery_hash:hash(recoveryCode)});
+    await db('sc_sessions','user_id='+eq(user.id),'DELETE');
+   }
   }
   await createSession(res,user);return send(res,200,{user:publicUser(user),...(recoveryCode?{recoveryCode}:{})});
  }
