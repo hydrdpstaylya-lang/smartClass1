@@ -20,6 +20,11 @@ create table if not exists public.sc_teacher_exams(
  body jsonb not null,revision integer not null default 1,created bigint not null, updated bigint not null
 );
 create index if not exists sc_teacher_exams_owner on public.sc_teacher_exams(owner,updated desc);
+
+-- Optional private phone number used for phone-based account sign-in.
+ALTER TABLE public.sc_users ADD COLUMN IF NOT EXISTS phone text;
+CREATE UNIQUE INDEX IF NOT EXISTS sc_users_phone_unique ON public.sc_users(phone) WHERE phone IS NOT NULL;
+
 -- Deny browser-facing public access. Only the server-side service_role API key may access tables.
 alter table public.sc_users enable row level security;
 alter table public.sc_sessions enable row level security;
