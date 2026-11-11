@@ -1,7 +1,7 @@
 /* ---------- New chat / group / channel / member ---------- */
 const SYMS = ['📘','🧮','🔬','🎨','🌍','🎵','⚽','📖','🧪','💡','🏫','✏️'];
 function newChatModal(tab='p'){
-  const T = state.role==='teacher';
+  const T = canTeachUI();
   const tabs = [['p','گفتگوی خصوصی'],['g', T?'کلاس / گروه':'گروه'], ...(T ? [['ch','کانال'],['u','عضو جدید']] : [])];
   const o = openOvl(`<div class="modal wide"><div class="modal-h"><div class="sym" style="background:var(--mint);color:var(--mint-ink)">✚</div><div><b>ساختن</b><small>گفتگو، کلاس، کانال یا افزودن عضو</small></div></div>
     <div class="modal-b"><div class="seg" id="ncSeg"><span class="si"></span>${tabs.map(t => `<button data-v="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div><div id="ncBody" class="nc-body"></div></div>
@@ -42,11 +42,11 @@ function newChatModal(tab='p'){
       closeOvl(); toast(`${n} اضافه شد`,'👤'); renderList(); return;
     }
     const members = [meId(), ...sel];
-    const c = {id:'c'+nid(), type: cur==='ch' ? 'channel' : 'class', name:n, sym, g, members, vis: cur==='ch' ? ['student','teacher'] : visFor(members), msgs:[{id:'m'+nid(), sys: cur==='ch' ? `کانال «${n}» ساخته شد` : `${P[meId()].name} ${T?'کلاس':'گروه'} «${n}» را ساخت`, ts:Date.now()}]};
+    const c = {id:'c'+nid(), type: cur==='ch' ? 'channel' : 'class', name:n, sym, g, members, vis: (cur==='ch' || canTeachUI()) ? ['student','teacher'] : visFor(members), msgs:[{id:'m'+nid(), sys: cur==='ch' ? `کانال «${n}» ساخته شد` : `${P[meId()].name} ${T?'کلاس':'گروه'} «${n}» را ساخت`, ts:Date.now()}]};
     if(cur==='ch'){ c.admin = 'teacher'; c.verified = true; const d = $('#ncD').value.trim(); if(d) c.msgs.push({id:'m'+nid(), by:meId(), t:d, ts:Date.now()+1, views:1}); }
     chats.push(c); closeOvl(); toast(`«${n}» ساخته شد`,'✨'); playSound('ok');
     renderList(); setTimeout(() => { openChat(c.id); const r = $(`.citem[data-id="${c.id}"]`)?.getBoundingClientRect(); if(r) confetti(r.left + r.width/2, r.top + r.height/2, 70, .7); }, 320);
   };
 }
 $('#newBtnTop').onclick = () => newChatModal('p');
-$('#fab').onclick = () => newChatModal(state.role==='teacher' ? 'g' : 'p');
+$('#fab').onclick = () => newChatModal(canTeachUI() ? 'g' : 'p');
