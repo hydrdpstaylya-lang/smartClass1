@@ -53,6 +53,19 @@ export async function account(req,res,path){const method=req.method;
  }
  if(path==='/account/logout'&&method==='POST') {const raw=cookieSession(req);if(raw)await db('sc_sessions','token_hash='+eq(hash(raw)),'DELETE');setSessionCookie(res,'',0);return send(res,200,{ok:true})}
  const u=await requireUser(req);
+ if(path==='/account/phone'&&method==='POST'){
+  const b=await input(req,4000),phone=normalizePhone(b?.phone);
+  if(!phone)throw new ApiError(400,'شماره تلفن معتبر نیست؛ آن را با پیش‌شماره کشور وارد کن.');
+  if(typeof b?.password!=='string'||b.password.length<10||b.password.length>128)throw new ApiError(400,'برای ثبت شماره، رمز فعلی حساب را وارد کن.');
+  const own=await db('sc_users','select=salt,password_hash&id='+eq(u.id)+'&limit=1');
+  const attempt=await passwordHash(b.password,own[0]?.salt||'invalid-user');
+  const expected=Buffer.from(own[0]?.password_hash||'00'.repeat(64),'hex');
+  if(expected.length!==64||!timingSafeEqual(Buffer.from(attempt,'hex'),expected))throw new ApiError(401,'رمز فعلی درست نیست.');
+  const used=await db('sc_users','select=id&phone='+eq(phone)+'&limit=1');
+  if(used.some(row=>Number(row.id)!==Number(u.id)))throw new ApiError(409,'این شماره تلفن به حساب دیگری متصل است.');
+  await db('sc_users','id='+eq(u.id),'PATCH',{phone},'return=minimal');
+  return send(res,200,{ok:true});
+ }
  if(path==='/account/progress'&&method==='GET'){const rows=await db('sc_progress','select=progress,revision&user_id='+eq(u.id));return send(res,200,{progress:rows[0]?.progress||null,revision:rows[0]?.revision||0})}
  if(path==='/account/progress'&&method==='PUT'){
   const b=await input(req,500000);const p=b?.progress||b,rev=b?.revision;
