@@ -18,7 +18,7 @@ function updateTaskDot(){
   $('#railTasks').style.display = pend ? 'grid' : 'none'; $('#railTasks').textContent = fa(pend);
 }
 function openTasks(){
-  const list = allAssign(), me = meId(), teacher = state.role==='teacher';
+  const list = allAssign(), me = meId(), teacher = canTeachUI();
   const done = list.filter(x => x.m.assign.subs.includes(me)).length;
   const subsAll = list.reduce((s,x) => s + x.m.assign.subs.length, 0), totalAll = list.reduce((s,x) => s + x.m.assign.total, 0);
   const near = list.find(x => x.m.assign.due > Date.now());
