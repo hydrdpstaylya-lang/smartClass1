@@ -1,0 +1,32 @@
+/* ================= Shell ================= */
+.shell{display:flex;height:100vh;height:100dvh;padding:10px;gap:10px;opacity:0;transform:scale(.985);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.shell.on{opacity:1;transform:none}
+.rail{width:78px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:14px 0 10px;gap:6px;color:var(--rail-ink);position:relative}
+.brand{width:46px;height:50px;border-radius:14px 14px 5px 14px;background:var(--mint2);color:#164d41;display:grid;place-items:center;transform:rotate(-5deg);margin-bottom:16px;position:relative;transition:transform .5s var(--spring)}
+.brand:hover{transform:rotate(5deg) scale(1.06)}
+.brand svg{width:26px;height:26px}
+.brand i{position:absolute;top:-3px;left:-3px;width:10px;height:10px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px var(--deep)}
+.rail-nav{display:flex;flex-direction:column;gap:6px;position:relative}
+.rail-ind{position:absolute;right:0;width:58px;height:58px;border-radius:16px;background:var(--mint);transition:transform .55s var(--spring2);z-index:0}
+[data-theme="dark"] .rail-ind{background:#1f4a3f}
+.rbtn{width:58px;height:58px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;z-index:1;transition:color .3s;font-size:10px;font-weight:600}
+.rbtn svg{width:22px;height:22px;transition:transform .45s var(--spring)}
+.rbtn:hover svg{transform:translateY(-2px) scale(1.08)}
+.rbtn:active svg{transform:scale(.85)}
+.rbtn.active{color:var(--mint-ink)}
+[data-theme="dark"] .rbtn.active{color:#bff0dc}
+.rbtn .dot{position:absolute;top:8px;left:10px;min-width:18px;height:18px;border-radius:9px;background:var(--orange);color:#3a2205;font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 5px;box-shadow:0 0 0 3px var(--deep);animation:pop .5s var(--spring) both}
+.rbtn .tip{position:absolute;right:calc(100% + 12px);top:50%;background:var(--panel);color:var(--ink);font-size:12.5px;padding:6px 11px;border-radius:9px;white-space:nowrap;box-shadow:var(--shadow);opacity:0;transform:translate(8px,-50%) scale(.95);pointer-events:none;transition:all .25s var(--ease);z-index:90}
+.rbtn:hover .tip{opacity:1;transform:translate(0,-50%)}
+.rbtn .ai-mini{width:24px;height:24px;border-radius:50%;background:conic-gradient(from 0deg,var(--mint2),var(--orange),var(--sky),var(--mint2));animation:spin 4s linear infinite;position:relative}
+.rbtn .ai-mini::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--deep)}
+.rbtn.active .ai-mini::after{background:var(--mint)}
+[data-theme="dark"] .rbtn.active .ai-mini::after{background:#1f4a3f}
+.rail-sp{flex:1}
+.role-av{width:46px;height:46px;border-radius:50%;position:relative;margin-top:6px;transition:transform .4s var(--spring)}
+.role-av:hover{transform:scale(1.07)}
+.role-av img,.role-av .av{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.role-av .rtag{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:var(--orange);color:#3a2205;font-size:9px;font-weight:800;padding:1px 6px;border-radius:7px;white-space:nowrap;box-shadow:0 0 0 2px var(--deep)}
+.focus-on{color:var(--orange)!important}
+
+.stage{flex:1;display:flex;min-width:0;background:var(--bg);border-radius:24px;overflow:hidden;position:relative;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);transition:background .5s}

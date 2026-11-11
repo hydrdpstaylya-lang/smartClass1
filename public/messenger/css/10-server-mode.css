@@ -1,0 +1,56 @@
+/* ================= Server mode (signed-in school accounts) ================= */
+
+/* connection pill: slides down from the top edge, breathes while reconnecting */
+.net-pill{position:fixed;top:12px;left:50%;z-index:950;display:flex;align-items:center;gap:9px;padding:8px 16px 8px 14px;border-radius:999px;
+  background:color-mix(in srgb,var(--deep) 88%,transparent);color:#e0eee8;font-size:12.5px;font-weight:700;letter-spacing:-.1px;
+  backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);box-shadow:0 14px 40px -12px rgba(0,0,0,.5);
+  transform:translate(-50%,-160%) scale(.9);opacity:0;pointer-events:none;transition:transform .6s var(--spring2),opacity .35s}
+.net-pill.show{transform:translate(-50%,0) scale(1);opacity:1}
+.net-pill i{width:8px;height:8px;border-radius:50%;background:#2fb592;box-shadow:0 0 0 0 rgba(47,181,146,.6);animation:netPulse 1.8s infinite}
+.net-pill.offline i{background:#efa457;animation-duration:1s}
+.net-pill.auth i{background:var(--danger,#d9485f)}
+@keyframes netPulse{0%{box-shadow:0 0 0 0 rgba(47,181,146,.55)}70%{box-shadow:0 0 0 9px rgba(47,181,146,0)}100%{box-shadow:0 0 0 0 rgba(47,181,146,0)}}
+
+/* sticky toast with spinner (uploads) */
+.toast.sticky .spin{width:15px;height:15px;border-radius:50%;border:2.2px solid rgba(255,255,255,.25);border-top-color:var(--mint2,#bff3dd);animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* sign-in gate — shares the onboarding backdrop */
+#srvGate{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:16px;color:#eafff8;
+  background:radial-gradient(1100px 600px at 85% 0%,#1c5352,transparent 60%),radial-gradient(900px 500px at 0% 100%,#173f3c,transparent 60%),#0d2523;
+  opacity:0;transition:opacity .6s}
+#srvGate.show{opacity:1}
+.gate-card{position:relative;width:min(480px,100%);padding:40px 32px 34px;border-radius:32px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;overflow:hidden;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(26px) saturate(1.4);-webkit-backdrop-filter:blur(26px) saturate(1.4);
+  box-shadow:0 40px 100px rgba(0,0,0,.45);animation:gateIn .9s var(--spring2) both}
+@keyframes gateIn{from{opacity:0;transform:translateY(40px) scale(.94);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+.gate-card small.ltr{letter-spacing:3px;font-size:11px;opacity:.6;direction:ltr}
+.gate-card h1{font-size:23px;font-weight:900;line-height:1.6;animation:fadeUp .7s .25s both}
+.gate-card p{opacity:.75;font-size:14px;line-height:2.05;animation:fadeUp .7s .35s both}
+.gate-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;animation:fadeUp .7s .45s both}
+.gate-btns .btn{min-width:150px;min-height:46px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1}
+.gate-btns .btn.pri{background:linear-gradient(135deg,#7fe3c2,#2fb48a);color:#06261c;border-color:transparent;box-shadow:0 10px 30px rgba(47,180,138,.35)}
+.gate-btns .btn.sec{background:rgba(255,255,255,.08);color:#eafff8;border-color:rgba(255,255,255,.18)}
+.gate-orbit{position:absolute;inset:auto 0 -120px 0;height:220px;pointer-events:none}
+.gate-orbit span{position:absolute;left:50%;top:50%;font-size:22px;opacity:.28;filter:saturate(.6);animation:gateOrbit 16s linear infinite}
+.gate-orbit span:nth-child(2){animation-delay:-4s}.gate-orbit span:nth-child(3){animation-delay:-8s}.gate-orbit span:nth-child(4){animation-delay:-12s}
+@keyframes gateOrbit{from{transform:rotate(0) translateX(190px) rotate(0)}to{transform:rotate(360deg) translateX(190px) rotate(-360deg)}}
+
+/* account card (role button in server mode) */
+.modal.acct{overflow:hidden}
+.acct-hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding:30px 20px 18px;text-align:center;
+  background:radial-gradient(420px 200px at 50% 0%,color-mix(in srgb,var(--green) 26%,transparent),transparent 70%)}
+.acct-hero .av{width:86px;height:86px;font-size:30px;box-shadow:0 18px 40px -14px rgba(0,0,0,.45);animation:pop .7s var(--spring) both}
+.acct-hero b{font-size:19px;font-weight:900;animation:fadeUp .5s .1s both}
+.acct-hero small{color:var(--muted);font-size:13px;animation:fadeUp .5s .16s both}
+.acct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.acct-grid>div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:16px;background:var(--panel2);border:1px solid var(--line);animation:fadeUp .5s both}
+.acct-grid>div:nth-child(2){animation-delay:.06s}.acct-grid>div:nth-child(3){animation-delay:.12s}
+.acct-grid b{font-size:20px;font-weight:900;color:var(--green)}
+.acct-grid small{font-size:11.5px;color:var(--muted)}
+.modal-f a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.set-btns a.btn{text-decoration:none}
+
+/* role tag shows the account role; no flipping animation hint */
+html.srv #roleBtn{cursor:pointer}
+html.srv #sRole{display:none}

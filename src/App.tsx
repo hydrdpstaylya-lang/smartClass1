@@ -1,5 +1,5 @@
 import {lazy,Suspense,useEffect,useState,Component,type ReactNode} from 'react'
-import {Home,Network,FlaskConical,Compass,Sparkles,LibraryBig,Search,Bell,Menu,X,ChevronLeft,ArrowUpRight,ArrowLeft,Play,Clock3,Flame,Check,Target,Settings,Wifi,WifiOff,BookOpen,GraduationCap,ShieldCheck,ClipboardList,Users,Bot} from 'lucide-react'
+import {Home,Network,FlaskConical,Compass,Sparkles,LibraryBig,Search,Bell,Menu,X,ChevronLeft,ArrowUpRight,ArrowLeft,Play,Clock3,Flame,Check,Target,Settings,Wifi,WifiOff,BookOpen,GraduationCap,ShieldCheck,ClipboardList,Users,Bot,MessageCircle} from 'lucide-react'
 import {lessons,subjects,fa,normalise,type Lesson} from './data/curriculum'
 import {useProgress,mastery,recommendation,storageFailed} from './state/store'
 import {useAccount} from './state/account'
@@ -19,10 +19,10 @@ export default function App(){
  const p=useProgress(),rec=recommendation(p),account=useAccount()
  const isEducator=!!account.user&&['teacher','admin'].includes(account.user.role)
  const isAdmin=account.user?.role==='admin'
- const visibleNav=nav.flatMap(n=>n.id==='studio'?[n,{id:'raiva',title:'رایوا | همیار هوشمند',en:'RAIVA AI',icon:Bot},...(isEducator?[{id:'exams',title:'ساخت آزمون',en:'EXAM BUILDER',icon:ClipboardList},...(isAdmin?[{id:'users',title:'مدیریت حساب کاربری',en:'ACCOUNT CONTROL',icon:Users}]:[])]:[])]:[n])
+ const visibleNav=nav.flatMap(n=>n.id==='studio'?[n,{id:'raiva',title:'رایوا | همیار هوشمند',en:'RAIVA AI',icon:Bot},{id:'chat',title:'گفتگوی کلاس',en:'MESSENGER',icon:MessageCircle},...(isEducator?[{id:'exams',title:'ساخت آزمون',en:'EXAM BUILDER',icon:ClipboardList},...(isAdmin?[{id:'users',title:'مدیریت حساب کاربری',en:'ACCOUNT CONTROL',icon:Users}]:[])]:[])]:[n])
  const today=(at:number)=>new Date(at).toDateString()===new Date().toDateString()
  useEffect(()=>{const m=matchMedia('(max-width:760px)');const h=()=>setMobile(m.matches);m.addEventListener('change',h);return()=>m.removeEventListener('change',h)},[])
- const go:Go=(id,t)=>{if(id==='users'&&!isAdmin){if(page!=='home'){setPage('home');location.hash='home'}setMenu(false);return}if(id==='exams'&&!isEducator){if(page!=='home'){setPage('home');location.hash='home'}setMenu(false);return}if(id==='exams'){window.location.assign('/teacher-exams/');return}setPage(id);if(t)setTool(t);location.hash=id;setMenu(false);window.scrollTo({top:0,behavior:'instant'})}
+ const go:Go=(id,t)=>{if(id==='users'&&!isAdmin){if(page!=='home'){setPage('home');location.hash='home'}setMenu(false);return}if(id==='exams'&&!isEducator){if(page!=='home'){setPage('home');location.hash='home'}setMenu(false);return}if(id==='exams'){window.location.assign('/teacher-exams/');return}if(id==='chat'){window.location.assign('/messenger/');return}setPage(id);if(t)setTool(t);location.hash=id;setMenu(false);window.scrollTo({top:0,behavior:'instant'})}
  useEffect(()=>{const h=()=>{setPage(route());setMenu(false)},on=()=>setOnline(navigator.onLine);window.addEventListener('hashchange',h);window.addEventListener('online',on);window.addEventListener('offline',on);return()=>{window.removeEventListener('hashchange',h);window.removeEventListener('online',on);window.removeEventListener('offline',on)}},[])
  useEffect(()=>{document.documentElement.classList.toggle('large-type',p.settings.large);document.documentElement.classList.toggle('high-contrast',p.settings.contrast);document.documentElement.classList.toggle('reduce-motion',p.settings.motion)},[p.settings])
  useEffect(()=>{if((page==='exams'&&!isEducator)||(page==='users'&&!isAdmin)){setPage('home');location.hash='home'}},[page,isEducator,isAdmin])

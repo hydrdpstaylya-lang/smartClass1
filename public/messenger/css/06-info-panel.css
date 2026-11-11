@@ -1,0 +1,46 @@
+/* ================= Info panel ================= */
+.info{width:0;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);overflow:hidden;transition:width .55s var(--ease);position:relative;z-index:4}
+.info.show{width:360px}
+.info-in{width:360px;height:100%;overflow-y:auto;display:flex;flex-direction:column}
+.inf-top{display:flex;align-items:center;gap:8px;padding:12px 14px;font-weight:900;font-size:16px}
+.inf-cover{margin:0 14px;border-radius:24px;height:230px;position:relative;overflow:hidden;display:grid;place-items:center;color:#fff}
+.inf-cover .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.3);opacity:0;transition:transform 1s var(--ease),opacity .6s}
+.info.show .inf-cover .bgimg{transform:none;opacity:1}
+.inf-cover .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,25,23,.85),transparent 60%)}
+.inf-cover .big{position:relative;font-size:72px;font-weight:900;transform:scale(.5);opacity:0;transition:transform .8s var(--spring) .15s,opacity .4s .15s}
+.info.show .inf-cover .big{transform:none;opacity:1}
+.inf-cover .nm{position:absolute;bottom:14px;right:16px;left:16px}
+.inf-cover .nm b{font-size:19px;font-weight:900;display:block}
+.inf-cover .nm small{opacity:.8;font-size:12.5px}
+.inf-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px}
+.inf-actions button{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:15px;background:var(--panel2);border:1px solid var(--line);font-size:11.5px;font-weight:700;color:var(--green);opacity:0;transform:translateY(12px);transition:background .2s,transform .3s var(--spring)}
+.info.show .inf-actions button{animation:fadeUp .5s var(--ease) forwards}
+.inf-actions button:hover{background:var(--mint)}
+.inf-actions svg{width:20px;height:20px}
+.inf-sec{padding:6px 14px 10px;opacity:0;transform:translateY(12px)}
+.info.show .inf-sec{animation:fadeUp .55s var(--ease) forwards}
+.inf-sec h4{font-size:11.5px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:10px 4px 8px}
+.inf-row{display:flex;gap:14px;align-items:center;padding:10px 6px;border-radius:12px}
+.inf-row svg{width:21px;height:21px;color:var(--muted)}
+.inf-row small{display:block;color:var(--muted);font-size:12px}
+.prog-card{background:linear-gradient(135deg,var(--deep),#1c5352);color:#d0e0d9;border-radius:20px;padding:16px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.prog-card::before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(199,242,223,.18),transparent 70%);top:-60px;left:-40px;animation:float 6s ease-in-out infinite}
+.prog-card b{color:#fff;font-size:15px;display:block}
+.prog-card small{font-size:12px}
+.prog-card .gring .tr{stroke:rgba(255,255,255,.12)}
+.prog-card .gring span{color:#fff}
+.prog-card .gring span small{color:#9bb3a7}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.bdg{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;font-weight:700;animation:pop .5s var(--spring) both}
+.mem{display:flex;align-items:center;gap:11px;padding:7px 6px;border-radius:12px;transition:background .2s}
+.mem:hover{background:var(--hover)}
+.mem b{display:block;font-size:14px}
+.mem small{color:var(--muted);font-size:12px}
+.mem .rl{margin-right:auto;font-size:10.5px;font-weight:800;color:var(--green);background:var(--soft);padding:2px 8px;border-radius:7px}
+.media-g{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.media-g div{aspect-ratio:1;border-radius:12px;opacity:0;transform:scale(.6)}
+.info.show .media-g div{animation:pop .5s var(--spring) forwards}
+.sw{margin-right:auto;width:40px;height:23px;border-radius:12px;background:color-mix(in srgb,var(--muted) 40%,transparent);position:relative;transition:background .3s;cursor:pointer;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:3px;right:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .45s var(--spring2)}
+.sw.on{background:var(--green)}
+.sw.on::after{transform:translateX(-17px)}
