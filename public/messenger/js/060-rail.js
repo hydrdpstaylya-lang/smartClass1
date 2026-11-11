@@ -19,8 +19,8 @@ $('#railNav').addEventListener('click', e => {
 addEventListener('resize', () => { moveRail($('#railNav .rbtn.active')); moveFold(); });
 function renderRole(){
   const p = P[meId()];
-  $('#roleBtn').innerHTML = avHTML(meId(),'noon').replace('class="av','class="av').replace(/<span class="on"><\/span>/,'') + `<span class="rtag">${state.role==='teacher'?'معلم':'دانش‌آموز'}</span>`;
-  $('#roleBtn').title = `${p.name} — برای تغییر نقش کلیک کنید`;
+  $('#roleBtn').innerHTML = avHTML(meId(),'noon').replace('class="av','class="av').replace(/<span class="on"><\/span>/,'') + `<span class="rtag">${state.role==='admin'?'مدیر':roleNameUI()}</span>`;
+  $('#roleBtn').title = NET.on ? `${p.name} — تنظیمات پروفایل` : `${p.name} — برای تغییر نقش کلیک کنید`;
 }
 
 /* Focus mode */
@@ -43,6 +43,7 @@ $('#themeBtn').addEventListener('click', e => {
 
 /* Role switch with wave */
 $('#roleBtn').addEventListener('click', async e => {
+  if(NET.on){ settingsModal(); return; } // Server roles come from the school account and cannot be changed in the demo UI.
   const to = state.role==='student' ? 'teacher' : 'student';
   const w = $('#rolewave'), c = $('.c', w), t = $('.t', w), r = e.currentTarget.getBoundingClientRect();
   const cx = r.left + r.width/2, cy = r.top + r.height/2, R = Math.hypot(Math.max(cx, innerWidth-cx), Math.max(cy, innerHeight-cy))/20 + 2;
