@@ -37,7 +37,7 @@ const CMDS = [
 function popFromInput(){
   const v = inp.value, c = state.cur;
   if(v.startsWith('/') && !v.includes(' ')){
-    const q = v.slice(1), list = CMDS.filter(x => (!x.teacher || state.role==='teacher') && x.k.startsWith(q));
+    const q = v.slice(1), list = CMDS.filter(x => (!x.teacher || canTeachUI()) && x.k.startsWith(q));
     const p = $('#cmdp');
     if(!list.length){ p.classList.remove('show'); return; }
     p.innerHTML = '<div class="ttl">فرمان‌ها</div>' + list.map((x,i) => `<div class="it ${i?'':'sel'}" data-k="${x.k}" style="animation-delay:${i*.03}s"><span style="font-size:19px;width:24px;text-align:center">${x.i}</span><span class="ltr" style="font-weight:800;color:var(--green)">/${x.k}</span><small>${x.d}</small>${x.teacher?'<span class="tbadge" style="font-size:9.5px;font-weight:800;padding:0 6px;border-radius:6px;background:color-mix(in srgb,var(--orange) 25%,transparent);color:#a4600f">معلم</span>':''}</div>`).join('');
@@ -89,7 +89,7 @@ const SVGI = {
   smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>',
 };
 function attItems(){
-  const T = state.role==='teacher', cls = state.cur?.type==='class';
+  const T = canTeachUI(), cls = state.cur?.type==='class';
   const L = [];
   if(T && cls){
     L.push(['task','تکلیف جدید','#16866f',assignModal,1],['poll','آزمونک','#efa457',quizModal,1],['att','حضور و غیاب','#5aa9d6',sendAtt,1],['cam','کلاس آنلاین','#e2737b',startLive,1]);
@@ -121,7 +121,7 @@ function smartFor(c, m){
   if(m?.grade) return ['ممنون خانم 🙏','خیلی خوشحال شدم 😍'];
   if(/سلام/.test(t)) return ['سلام 👋','سلام، صبح بخیر 🌱'];
   if(/\?|؟/.test(t)) return ['بله ✅','نه، هنوز نه','الان بررسی می‌کنم'];
-  if(state.role==='teacher' && c.type==='class') return ['آفرین بچه‌ها 👏','سؤالی هست؟','فردا مرور می‌کنیم 📚'];
+  if(canTeachUI() && c.type==='class') return ['آفرین بچه‌ها 👏','سؤالی هست؟','فردا مرور می‌کنیم 📚'];
   return ['👍','ممنون 🙏','باشه 😊'];
 }
 function setChips(list){
