@@ -15,7 +15,7 @@ function renderInfo(){
     html += `<div class="inf-sec" style="animation-delay:.2s"><h4>پیشرفت یادگیری من</h4><div class="prog-card"><div class="gring" data-v="82" data-max="100" style="width:74px;height:74px;position:relative;flex-shrink:0"><svg viewBox="0 0 92 92" style="width:100%;height:100%;transform:rotate(-90deg)"><circle class="tr" cx="46" cy="46" r="40" fill="none" stroke-width="8"/><circle class="pr" cx="46" cy="46" r="40" fill="none" stroke="url(#gGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/></svg><span style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1"><b class="gv" style="font-size:19px">۰</b></span></div><div style="position:relative"><b>کاوشگر سطح ۴</b><small>۸۲٪ تا نشان «قلعهٔ دانش» · ۳ تکلیف تحویل‌شده این هفته</small></div></div>
     <div class="badges">${[['🔥','۵ روز پیاپی'],['🧮','استاد الگو'],['📚','کتاب‌خوان'],['🌱','کنجکاو']].map((b,i) => `<span class="bdg" style="animation-delay:${.35+i*.07}s">${b[0]} ${b[1]}</span>`).join('')}</div></div>`;
   }
-  if(c.type==='class' && state.role==='teacher' && c.id==='c1'){
+  if(c.type==='class' && canTeachUI() && c.id==='c1'){
     const a = c.msgs.find(m => m.assign)?.assign;
     if(a) html += `<div class="inf-sec" style="animation-delay:.2s"><h4>داشبورد کلاس</h4><div class="prog-card"><div style="position:relative;font-size:34px;font-weight:900;color:#fff">${fa(Math.round(a.subs.length/a.total*100))}٪</div><div style="position:relative"><b>تحویل «${esc(a.title)}»</b><small>${fa(a.subs.length)} از ${fa(a.total)} دانش‌آموز · میانگین نمره کلاس ۱۸٫۲</small></div></div></div>`;
   }
