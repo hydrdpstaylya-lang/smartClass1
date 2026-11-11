@@ -5,7 +5,7 @@ function settingsModal(){
   const row = (k, t, s) => `<div class="set-row"><div><b>${t}</b><small>${s}</small></div><span class="sw ${SET[k]?'on':''}" data-k="${k}"></span></div>`;
   const o = openOvl(`<div class="modal wide set"><div class="modal-h"><div class="sym" style="background:var(--mint);color:var(--mint-ink)">⚙️</div><div><b>تنظیمات</b><small>SmartClass گفتگو · نسخهٔ کامل</small></div></div>
     <div class="modal-b" style="max-height:66vh;overflow:auto">
-      <div class="set-sec"><h4>پروفایل · ${state.role==='teacher'?'معلم':'دانش‌آموز'}</h4>
+      <div class="set-sec"><h4>پروفایل · ${roleNameUI()}</h4>
         <div class="prof"><button class="prof-av" id="sAv">${avHTML(meId(),'lg noon')}<span>📷</span></button><div style="flex:1;display:grid;gap:8px"><div class="fld"><input id="sName" value="${esc(p.name)}" placeholder="نام"></div><div class="fld"><input id="sTitle" value="${esc(p.title||'')}" placeholder="عنوان (مثلاً پایهٔ سوم)"></div></div></div></div>
       <div class="set-sec"><h4>ظاهر</h4>
         <div class="set-row"><div><b>تم تیره</b><small>تغییر با انیمیشن دایره‌ای</small></div><span class="sw ${document.documentElement.dataset.theme==='dark'?'on':''}" id="sTheme"></span></div>
