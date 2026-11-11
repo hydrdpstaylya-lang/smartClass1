@@ -4,7 +4,7 @@
 const msgsEl = $('#msgs'), inp = $('#inp'), sendb = $('#sendb');
 function showEmpty(){
   $('#chat').classList.remove('show'); $('#empty').classList.remove('hide'); $('#stage').classList.remove('open');
-  $('#emptyH').textContent = state.role==='teacher' ? 'کلاس منتظر شماست.' : 'یک گفتگو، هزار کشف.';
+  $('#emptyH').textContent = canTeachUI() ? 'کلاس منتظر شماست.' : 'یک گفتگو، هزار کشف.';
 }
 function stText(c){
   if(c.typing) return {t:(c.type!=='personal' ? pname(c.typing)+' ' : '')+'در حال نوشتن…', hl:1, dots:1};
@@ -32,7 +32,7 @@ function shiftWall(){ $$('.wall .bl').forEach(b => b.style.transform = `translat
 function canPost(c){ return !(c.type==='channel' && c.admin!==state.role); }
 
 function openChat(id, focusId){
-  const c = chats.find(x => x.id===id); if(!c || !c.vis.includes(state.role)) return;
+  const c = chats.find(x => x.id===id); if(!c || !canSeeChatUI(c)) return;
   const prev = state.cur;
   if(prev && prev!==c){ prev.draft = inp.value.trim(); }
   closePops(); cancelReply(); closeSum();
@@ -50,7 +50,7 @@ function openChat(id, focusId){
     $('#chat').classList.toggle('ro', !canPost(c));
     $('#muteCh').textContent = c.muted ? '🔕 روشن کردن اعلان‌ها' : '🔔 بی‌صدا کردن کانال';
     inp.value = c.draft || ''; c.draft = ''; autosize();
-    inp.placeholder = c.bot ? 'از رایوا بپرس… (مثلاً ۱۲ × ۸)' : c.type==='class' ? (state.role==='teacher' ? 'پیام به کلاس… ( / برای فرمان‌ها )' : 'پیام به کلاس… ( @ برای نام بردن )') : 'پیام…';
+    inp.placeholder = c.bot ? 'از رایوا بپرس… (مثلاً ۱۲ × ۸)' : c.type==='class' ? (canTeachUI() ? 'پیام به کلاس… ( / برای فرمان‌ها )' : 'پیام به کلاس… ( @ برای نام بردن )') : 'پیام…';
     renderMsgs(c);
     shiftWall();
     const lastIn = c.msgs.filter(m => !m.sys && !isMe(m.by)).slice(-1)[0];
