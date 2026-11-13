@@ -109,6 +109,7 @@ $('accountForm').onsubmit=async e=>{
  try{
   const r=await request(mode,data);view(r.user);message.textContent=mode==='register'?'حساب ساخته شد و وارد شدی.':mode==='recover'?'رمز عبور تغییر کرد.':'با موفقیت وارد شدی.';
   if(r.recoveryCode){show('recovery',true);$('generatedCode').textContent=r.recoveryCode}else show('recovery',false);
+  if(mode==='login'||mode==='register')setTimeout(()=>location.assign('/messenger/'),700);
  }catch(err){message.textContent=err.message}
  finally{btn.disabled=false}
 };
