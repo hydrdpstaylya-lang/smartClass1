@@ -195,3 +195,52 @@
 @media(max-width:1000px){.raiva-layout{grid-template-columns:215px minmax(0,1fr)}.raiva-page{padding:17px}.raiva-question-list{grid-template-columns:1fr}}
 @media(max-width:760px){.raiva-page{padding:12px;border-radius:15px;gap:12px}.raiva-heading{align-items:flex-start;flex-direction:column;padding-bottom:12px}.raiva-heading-actions{width:100%;justify-content:space-between}.raiva-heading h1{font-size:20px}.raiva-heading h1 em{font-size:11px}.raiva-layout{grid-template-columns:1fr;gap:10px;min-height:0}.raiva-sidebar{min-height:0;padding:11px}.raiva-history{display:flex;overflow-x:auto;max-height:none}.raiva-history-item{min-width:145px}.raiva-side-section{margin-top:12px}.raiva-bank-summary{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-top:1px solid #315046;padding-top:10px}.raiva-bank-summary .raiva-side-title,.raiva-bank-count{grid-column:1/-1}.raiva-bank-count{padding:4px 8px}.raiva-sidebar-foot{display:none}.raiva-main{min-height:620px}.raiva-messages{min-height:350px;max-height:55dvh;padding:14px 10px}.raiva-composer{margin:0 10px 10px;padding:10px}.raiva-footer{flex-direction:column;gap:5px}.raiva-bank-view{padding:12px}.raiva-bank-tools{flex-direction:column;align-items:stretch}.raiva-bank-tools label{min-height:42px}.raiva-bank-tools select{width:100%;min-height:40px}.raiva-prompts{grid-template-columns:1fr}.raiva-message{gap:7px}.raiva-message-body{padding:10px;max-width:calc(100% - 38px)}}
 @media(max-width:390px){.raiva-heading h1 em{display:block;margin:0}.raiva-connection{font-size:8px}.raiva-main-top{padding:12px}.raiva-main-top h2{font-size:13px}.raiva-composer-bottom>span{font-size:7px}.raiva-question-card{padding:11px}}
+
+
+/* SmartClass Pro — polished micro-interactions and page motion */
+:root{--sc-ease:cubic-bezier(.2,.75,.25,1);--sc-shadow:0 14px 34px rgba(24,76,56,.10)}
+@keyframes sc-fade-up{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes sc-soft-pop{0%{transform:scale(.96);opacity:.6}70%{transform:scale(1.025)}100%{transform:scale(1);opacity:1}}
+@keyframes sc-glow{0%,100%{box-shadow:0 0 0 0 rgba(91,178,135,0)}50%{box-shadow:0 0 0 5px rgba(91,178,135,.12)}}
+@keyframes sc-orbit{to{transform:rotate(335deg)}}
+@keyframes sc-notice{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.sc-reveal{opacity:0;transform:translate3d(0,18px,0);transition:opacity .58s var(--sc-ease),transform .58s var(--sc-ease);transition-delay:var(--sc-reveal-delay,0ms);will-change:opacity,transform}
+.sc-reveal.sc-revealed{opacity:1;transform:translate3d(0,0,0);will-change:auto}
+.sc-motion-ready .page-container>.welcome-row{animation:sc-fade-up .55s var(--sc-ease) both}
+.sc-motion-ready .page-container>.hero-grid{animation:sc-fade-up .65s .07s var(--sc-ease) both}
+.sc-motion-ready .brand-mark{transition:transform .35s var(--sc-ease),box-shadow .35s ease}
+.sc-motion-ready .brand:hover .brand-mark{transform:rotate(0) translateY(-2px) scale(1.04);box-shadow:0 7px 18px #b5e8ce30}
+.sc-motion-ready .nav-link{transition:background .22s ease,color .22s ease,transform .22s var(--sc-ease),padding .22s var(--sc-ease)}
+.sc-motion-ready .nav-link:hover{transform:translateX(-3px)}
+.sc-motion-ready .nav-link.active{box-shadow:inset -3px 0 #6eae88}
+.sc-motion-ready .primary,.sc-motion-ready .secondary,.sc-motion-ready .text-button,.sc-motion-ready .icon-button,.sc-motion-ready .circle-button,.sc-motion-ready .ai-hero button{transition:transform .2s var(--sc-ease),box-shadow .22s ease,background-color .2s ease,color .2s ease,border-color .2s ease}
+.sc-motion-ready button:not(:disabled):active,.sc-motion-ready .sc-pressed{transform:scale(.965)}
+.sc-motion-ready .primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(32,143,118,.2)}
+.sc-motion-ready .secondary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 18px rgba(32,91,66,.09)}
+.sc-motion-ready .icon-button:hover{transform:translateY(-2px) rotate(-3deg)}
+.sc-motion-ready .circle-button:hover{transform:scale(1.08);box-shadow:0 7px 16px rgba(32,143,118,.22)}
+.sc-motion-ready .stat,.sc-motion-ready .subject-card,.sc-motion-ready .panel,.sc-motion-ready .explore-strip,.sc-motion-ready .exam-question,.sc-motion-ready .admin-user-row{transition:transform .28s var(--sc-ease),box-shadow .28s ease,border-color .28s ease}
+.sc-motion-ready .stat:hover,.sc-motion-ready .subject-card:hover,.sc-motion-ready .panel:hover{box-shadow:var(--sc-shadow);border-color:#d2e6d9}
+.sc-motion-ready .stat:hover{transform:translateY(-3px)}
+.sc-motion-ready .subject-card:hover{transform:translateY(-5px)}
+.sc-motion-ready .subject-symbol{transition:transform .3s var(--sc-ease)}
+.sc-motion-ready .subject-card:hover .subject-symbol{transform:rotate(-7deg) scale(1.08)}
+.sc-motion-ready .ai-orb>i{animation:sc-orbit 18s linear infinite}
+.sc-motion-ready .ai-orb>b{animation:sc-orbit 24s linear infinite reverse}
+.sc-motion-ready .ai-orb>svg{animation:sc-soft-pop 3.8s ease-in-out infinite}
+.sc-motion-ready .notification i,.sc-motion-ready .new-dot{animation:sc-glow 2.8s ease-in-out infinite}
+.sc-motion-ready .status-dot:not(.offline){box-shadow:0 0 0 3px rgba(113,204,163,.12)}
+.sc-motion-ready .floating-label{transition:transform .3s var(--sc-ease),background .3s ease}
+.sc-motion-ready .adventure-hero:hover .floating-label{transform:translateY(-4px)}
+.sc-motion-ready .modal-backdrop,.sc-motion-ready [role="dialog"]{animation:sc-fade-up .24s var(--sc-ease) both}
+.sc-motion-ready .loading>span,.sc-motion-ready .thinking>span{animation:spin .8s linear infinite}
+.sc-motion-ready .site-footer{transition:background .25s ease}
+@media(hover:none){.sc-motion-ready .stat:hover,.sc-motion-ready .subject-card:hover,.sc-motion-ready .panel:hover{transform:none;box-shadow:none}}
+@media(max-width:760px){.sc-reveal{transform:translate3d(0,12px,0);transition-duration:.42s}.sc-motion-ready .nav-link:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .sc-reveal{opacity:1!important;transform:none!important}
+}
+.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.reduce-motion .sc-reveal{opacity:1!important;transform:none!important}
