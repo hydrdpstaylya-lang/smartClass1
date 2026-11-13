@@ -7,7 +7,7 @@ function storyInner(spec){
   return `<div style="background:${GR[spec.g]}">${spec.sym}</div>`;
 }
 function renderStories(){
-  const add = state.role==='teacher' ? `<div class="story add" id="addStory"><div class="story-ring"><div style="font-size:26px">+</div></div><b>استوری کلاس</b></div>` : '';
+  const add = canTeachUI() ? `<div class="story add" id="addStory"><div class="story-ring"><div style="font-size:26px">+</div></div><b>${NET.on?'اعلان کلاس':'استوری کلاس'}</b></div>` : '';
   $('#stories').innerHTML = add + STORIES.map((s,i) => `<div class="story ${s.seen?'seen':''}" data-i="${i}" style="animation-delay:${.1+i*.07}s"><div class="story-ring">${storyInner(s.av)}</div><b>${s.who}</b></div>`).join('');
   $('#miniStories').innerHTML = STORIES.filter(s => !s.seen).slice(0,3).map(s => `<span style="background:${s.av.g!==undefined?GR[s.av.g]:(s.av.p?GR[P[s.av.p].g]:'#8b7fd6')}">${s.av.p&&P[s.av.p].img?`<img src="${P[s.av.p].img}" alt="">`:(s.av.ai?'✦':(s.av.sym||''))}</span>`).join('');
 }
