@@ -272,7 +272,11 @@ async function createDailyToken(call,u,isOwner){
     user_name:String(u.name||'عضو کلاس').slice(0,80),
     is_owner:!!isOwner,
     exp,
-    eject_at_token_exp:true
+    eject_at_token_exp:true,
+    start_audio_off:true,
+    start_video_off:true,
+    enable_recording:false,
+    ...(isOwner?{}:{permissions:{hasPresence:true,canSend:['video'],canReceive:{},canAdmin:false}})
   }});
   if(!result.token)throw new ApiError(502,'سرویس تماس، کد ورود معتبر برنگرداند.');
   return{url:call.room_url,token:result.token,expires_at:call.expires_at,is_owner:!!isOwner};
