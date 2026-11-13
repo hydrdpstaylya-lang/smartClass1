@@ -402,6 +402,7 @@ async function voice(req,res,u){
       next:events.length?events[events.length-1].id:since,
       consents:teach?consents.map(c=>({user:M.cid(c.user_id),allowed:c.allowed,updated:c.updated})):[],
       selfConsent:!!self?.allowed,
+      me:M.cid(u.id),
       participants:publicParticipants,
       breakouts:teach?breakoutRows.map(x=>({id:x.id,label:x.label,members:(x.members||[]).map(M.cid)})):ownBreakout?[{id:ownBreakout.id,label:ownBreakout.label,members:[]}]:[]
     });
@@ -429,7 +430,13 @@ async function voice(req,res,u){
     const missing=present.filter(p=>!allowed.has(String(p.user_id)));
     if(missing.length)throw new ApiError(409,'تا وقتی همهٔ افراد حاضر رضایت نداده‌اند، متن‌برداری آغاز نمی‌شود. افراد بدون رضایت: '+missing.map(p=>voiceCleanText(p.user_name||'عضو کلاس',60)).join('، '));
     if(!present.length)throw new ApiError(409,'هنوز کسی به کلاس وصل نیست.');
+    await voiceEvent(call,u,'transcription_start',{participants:present.length,storage:'SmartClass text only; no audio recording'});
     return send(res,200,{ok:true,participants:present.map(p=>p.session_id)});
+  }
+  if(action==='transcription-stop'){
+    if(!educator)throw new ApiError(403,'فقط آموزگار می‌تواند متن‌برداری زنده را متوقف کند.');
+    const row=await voiceEvent(call,u,'transcription_stop',{stopped:true});
+    return send(res,200,{ok:true,eventId:row?.id});
   }
   if(action==='transcript-line'){
     if(!educator)throw new ApiError(403,'فقط آموزگار می‌تواند متن جلسه را ثبت کند.');
