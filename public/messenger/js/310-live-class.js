@@ -52,7 +52,7 @@
   function createShell(isOwner,chatName){
     const shell=document.createElement('div');
     shell.className='sc-call-overlay';
-    shell.innerHTML='<section class="sc-call-window" role="dialog" aria-modal="true" aria-label="کلاس آنلاین"><header class="sc-call-head"><div><b>کلاس آنلاین SmartClass</b><small class="sc-call-state">در حال اتصال امن به اتاق خصوصی…</small></div><div class="sc-call-actions">'+(isOwner?'<button type="button" class="sc-call-end">پایان کلاس برای همه</button>':'')+'<button type="button" class="sc-call-leave">خروج از جلسه</button></div></header><div class="sc-call-frame"></div><footer class="sc-call-foot">ورود فقط با حساب عضو کلاس · ضبط جلسه خاموش است · قبل از فعال‌کردن دوربین و میکروفون، مجوز مرورگر را بررسی کن.</footer></section>';
+    shell.innerHTML='<section class="sc-call-window" role="dialog" aria-modal="true" aria-label="کلاس آنلاین"><header class="sc-call-head"><div><b>کلاس آنلاین SmartClass</b><small class="sc-call-state">در حال اتصال امن به اتاق خصوصی…</small></div><div class="sc-call-actions">'+(isOwner?'<button type="button" class="sc-call-end">پایان کلاس برای همه</button>':'')+'<button type="button" class="sc-call-leave">خروج از جلسه</button></div></header><div class="sc-call-home"><div class="sc-call-frame"></div></div><footer class="sc-call-foot">ورود فقط با حساب عضو کلاس · ضبط جلسه خاموش است · قبل از فعال‌کردن دوربین و میکروفون، مجوز مرورگر را بررسی کن.</footer></section>';
     document.body.appendChild(shell);
     shell.querySelector('.sc-call-leave').addEventListener('click',()=>exitCall(false));
     shell.querySelector('.sc-call-end')?.addEventListener('click',()=>exitCall(true));
@@ -137,4 +137,52 @@
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watch,{once:true});
   else watch();
+
+  async function switchRoom(access,label){
+    if(!overlay||!access?.url||!access?.token)throw new Error('اطلاعات اتاق گروهی معتبر نیست.');
+    const parent=overlay.querySelector('.sc-call-frame');
+    if(frame){try{await frame.leave();}catch{}try{frame.destroy();}catch{}}
+    const factory=window.Daily?.createFrame||window.DailyIframe?.createFrame;
+    frame=factory(parent,{showLeaveButton:true,showFullscreenButton:true,iframeStyle:{width:'100%',height:'100%',border:'0',borderRadius:'14px'}});
+    frame.on('joined-meeting',()=>{
+      const status=overlay?.querySelector('.sc-call-state');
+      if(status)status.textContent='اتصال برقرار شد · '+String(label||'اتاق گروهی');
+    });
+    frame.on('left-meeting',()=>{if(frame)cleanup();});
+    frame.on('error',event=>{
+      const status=overlay?.querySelector('.sc-call-state');
+      if(status)status.textContent='خطا در تماس: '+String(event?.errorMsg||'اتصال قطع شد').slice(0,120);
+    });
+    await frame.join({url:access.url,token:access.token});
+    return true;
+  }
+  async function returnMainRoom(){
+    if(!currentChat)throw new Error('کلاس اصلی مشخص نیست.');
+    const access=await api('join',currentChat);
+    await switchRoom(access,'کلاس اصلی');
+    return access;
+  }
+  window.SC_LIVE = {
+    get frame(){return frame;},
+    get overlay(){return overlay;},
+    get chatId(){return currentChat;},
+    isTeacher:()=>!!(NET?.on&&canTeachUI()),
+    ensureStart:()=>join('start'),
+    ensureJoin:()=>join('join'),
+    leave:()=>exitCall(false),
+    end:()=>exitCall(true),
+    switchRoom,
+    returnMainRoom,
+    attachHost(host){
+      const node=overlay?.querySelector('.sc-call-frame');
+      if(!node||!host)return false;
+      host.appendChild(node);return true;
+    },
+    detachHost(){
+      const node=overlay?.querySelector('.sc-call-frame');
+      const home=overlay?.querySelector('.sc-call-home');
+      if(node&&home)home.appendChild(node);
+    },
+    voiceReady(){return !!(frame&&currentChat);}
+  };
 })();
