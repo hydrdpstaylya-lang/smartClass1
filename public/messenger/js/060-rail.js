@@ -14,6 +14,7 @@ $('#railNav').addEventListener('click', e => {
   if(r==='chats') setFolder('all');
   if(r==='classes') setFolder('class');
   if(r==='tasks') openTasks();
+  if(r==='teacher') openTeacherCenter();
   if(r==='ai') openChat('c3');
 });
 addEventListener('resize', () => { moveRail($('#railNav .rbtn.active')); moveFold(); });
@@ -21,6 +22,8 @@ function renderRole(){
   const p = P[meId()];
   $('#roleBtn').innerHTML = avHTML(meId(),'noon').replace('class="av','class="av').replace(/<span class="on"><\/span>/,'') + `<span class="rtag">${state.role==='admin'?'مدیر':roleNameUI()}</span>`;
   $('#roleBtn').title = NET.on ? `${p.name} — تنظیمات پروفایل` : `${p.name} — برای تغییر نقش کلیک کنید`;
+  const teacherNav = $('#teacherNav');
+  if(teacherNav) teacherNav.hidden = !canTeachUI();
 }
 
 /* Focus mode */
