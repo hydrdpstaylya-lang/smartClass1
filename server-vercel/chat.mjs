@@ -243,6 +243,96 @@ async function avatar(req,res,u){
   const buf=Buffer.from(m[2],'base64');res.statusCode=200;res.setHeader('Content-Type',m[1]);res.setHeader('Cache-Control','private, max-age=604800, immutable');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Content-Length',buf.length);res.end(buf);
 }
 
+
+/* ---------- secure live class rooms (Daily private rooms + short-lived tokens) ---------- */
+async function dailyRequest(path,method='POST',body){
+  const key=String(process.env.DAILY_API_KEY||'').trim();
+  if(!key)throw new ApiError(503,'تماس زنده هنوز پیکربندی نشده است. مدیر مدرسه باید DAILY_API_KEY را در تنظیمات محرمانهٔ Vercel قرار دهد.');
+  let response;
+  try{
+    response=await fetch('https://api.daily.co/v1'+path,{
+      method,
+      headers:{Authorization:'Bearer '+key,Accept:'application/json','Content-Type':'application/json'},
+      ...(body!==undefined?{body:JSON.stringify(body)}:{}),
+      signal:AbortSignal.timeout(15000)
+    });
+  }catch{throw new ApiError(503,'سرویس تماس آنلاین پاسخ نداد. چند لحظه بعد دوباره امتحان کن.')}
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){
+    const detail=String(data.info||data.error||data.message||'').slice(0,180);
+    throw new ApiError(502,'سرویس تماس آنلاین درخواست را نپذیرفت ('+response.status+'). '+detail);
+  }
+  return data;
+}
+async function createDailyToken(call,u,isOwner){
+  const exp=Math.floor(call.expires_at/1000);
+  const result=await dailyRequest('/meeting-tokens','POST',{properties:{
+    room_name:call.room_name,
+    user_id:String(u.id),
+    user_name:String(u.name||'عضو کلاس').slice(0,80),
+    is_owner:!!isOwner,
+    exp,
+    eject_at_token_exp:true
+  }});
+  if(!result.token)throw new ApiError(502,'سرویس تماس، کد ورود معتبر برنگرداند.');
+  return{url:call.room_url,token:result.token,expires_at:call.expires_at,is_owner:!!isOwner};
+}
+async function liveCall(req,res,u){
+  rate('call:'+u.id,30);
+  const b=await input(req,5000);
+  const action=String(b?.action||'').trim();
+  if(!['start','join','end'].includes(action))throw new ApiError(400,'درخواست تماس معتبر نیست.');
+  const chatId=String(b?.chat||'').trim();
+  if(!M.ID_RE.test(chatId))throw new ApiError(400,'شناسهٔ کلاس معتبر نیست.');
+  const {ctx,teach}=await needChat(chatId,u);
+  if(ctx.chat.type!=='class')throw new ApiError(400,'تماس زنده فقط داخل کلاس مدرسه فعال است.');
+  const educator=M.isEducator(u)&&teach;
+  if((action==='start'||action==='end')&&!educator)throw new ApiError(403,'فقط آموزگار یا مدیر همان کلاس می‌تواند جلسه را شروع یا پایان دهد.');
+  const rows=await db('sc_chat_calls','select=*&chat_id='+eq(chatId)+'&limit=1');
+  let call=rows[0]||null;
+  const stamp=now();
+  if(action==='end'){
+    if(!call||call.ended_at||call.expires_at<=stamp)throw new ApiError(404,'جلسهٔ فعالی برای پایان دادن وجود ندارد.');
+    await db('sc_chat_calls','chat_id='+eq(chatId),'PATCH',{ended_at:stamp},'return=minimal');
+    await db('sc_chats','id='+eq(chatId),'PATCH',{live:false},'return=minimal');
+    try{await dailyRequest('/rooms/'+encodeURIComponent(call.room_name),'DELETE')}catch{}
+    return send(res,200,{ok:true,ended:true});
+  }
+  if(action==='start'){
+    if(call&&!call.ended_at&&call.expires_at>stamp+30000){
+      const access=await createDailyToken(call,u,true);
+      return send(res,200,{ok:true,...access,reused:true});
+    }
+    if(call&&!call.ended_at)await db('sc_chat_calls','chat_id='+eq(chatId),'PATCH',{ended_at:stamp},'return=minimal');
+    const expires=stamp+90*60*1000;
+    const roomName='sc-'+randomToken(22);
+    const room=await dailyRequest('/rooms','POST',{name:roomName,privacy:'private',properties:{
+      exp:Math.floor(expires/1000),
+      max_participants:40,
+      enable_prejoin_ui:true,
+      enable_chat:true,
+      enable_screenshare:true,
+      enable_recording:false
+    }});
+    if(!room.url||!room.name)throw new ApiError(502,'سرویس تماس، اتاق خصوصی معتبری نساخت.');
+    const next={chat_id:chatId,room_name:room.name,room_url:room.url,started_by:u.id,started_at:stamp,expires_at:expires,ended_at:null};
+    try{
+      await db('sc_chat_calls','on_conflict=chat_id','POST',next,'resolution=merge-duplicates,return=minimal');
+      await db('sc_chats','id='+eq(chatId),'PATCH',{live:true},'return=minimal');
+      call=next;
+      const access=await createDailyToken(call,u,true);
+      return send(res,200,{ok:true,...access,reused:false});
+    }catch(error){
+      try{await dailyRequest('/rooms/'+encodeURIComponent(room.name),'DELETE')}catch{}
+      throw error;
+    }
+  }
+  // Students and teachers may join only while an authenticated member's class has an active private room.
+  if(!call||call.ended_at||call.expires_at<=stamp)throw new ApiError(404,'کلاس هنوز جلسهٔ زنده ندارد؛ منتظر بمان تا آموزگار آن را شروع کند.');
+  const access=await createDailyToken(call,u,educator);
+  return send(res,200,{ok:true,...access,reused:true});
+}
+
 /* ---------- router ---------- */
 export async function chat(req,res,path){
   const u=await requireUser(req);
@@ -251,6 +341,7 @@ export async function chat(req,res,path){
   if(path==='/chat/upload'&&req.method==='POST')return await wrap(()=>upload(req,res,u));
   if(path==='/chat/file'&&req.method==='GET')return await wrap(()=>file(req,res,u));
   if(path==='/chat/avatar'&&req.method==='GET')return await wrap(()=>avatar(req,res,u));
+  if(path==='/chat/call'&&req.method==='POST')return await wrap(()=>liveCall(req,res,u));
   if(path==='/chat/directory'&&req.method==='GET'){const ids=(await db('sc_chat_members','select=chat_id&user_id='+eq(u.id))).map(r=>r.chat_id);return send(res,200,{directory:await directory(u,ids)})}
   throw new ApiError(404,'مسیر پیام‌رسان وجود ندارد.');
 }

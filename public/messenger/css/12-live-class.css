@@ -1,0 +1,23 @@
+/* Secure live classroom UI */
+.sc-live-start{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:12px;padding:8px 11px;background:var(--soft);color:var(--green);font:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.sc-live-start:hover{filter:brightness(.97);transform:translateY(-1px)}
+.sc-live-start[hidden]{display:none!important}
+.sc-call-overlay{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:16px;background:rgba(8,18,16,.78);backdrop-filter:blur(12px)}
+.sc-call-window{width:min(1120px,100%);height:min(860px,94vh);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:22px;background:var(--panel);box-shadow:0 30px 100px rgba(0,0,0,.38)}
+.sc-call-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+.sc-call-head b,.sc-call-head small{display:block}
+.sc-call-head b{font-size:14px;color:var(--ink)}
+.sc-call-head small{margin-top:4px;font-size:11px;color:var(--muted)}
+.sc-call-actions{display:flex;align-items:center;gap:8px}
+.sc-call-actions button{border:1px solid var(--line);border-radius:11px;padding:9px 12px;background:var(--panel2);color:var(--ink);font:inherit;font-size:11px;cursor:pointer}
+.sc-call-actions .sc-call-end{border-color:transparent;background:#b42318;color:white}
+.sc-call-frame{position:relative;flex:1;min-height:250px;background:#111}
+.sc-call-frame iframe{width:100%;height:100%;border:0}
+.sc-call-foot{padding:10px 14px;text-align:center;border-top:1px solid var(--line);color:var(--muted);font-size:10px;line-height:1.7}
+@media(max-width:680px){
+ .sc-call-overlay{padding:0}
+ .sc-call-window{width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+ .sc-call-head{align-items:flex-start;flex-wrap:wrap;padding:12px}
+ .sc-call-actions{width:100%;justify-content:flex-end}
+ .sc-call-frame{min-height:220px}
+}
