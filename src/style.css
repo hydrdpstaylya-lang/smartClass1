@@ -331,3 +331,32 @@
 .reduce-motion .sc-cursor-glow,.reduce-motion .sc-scroll-progress{display:none!important}
 .reduce-motion .sc-reveal{opacity:1!important;transform:none!important;filter:none!important}
 .reduce-motion .sc-motion-ready *,.reduce-motion .sc-motion-ready *::before,.reduce-motion .sc-motion-ready *::after{animation:none!important;transition:none!important}
+
+
+/* ── Emoji Motion Celebration Pack ── */
+@keyframes sc-emoji-float{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}50%{transform:translateY(-10px) rotate(7deg) scale(1.12)}}
+@keyframes sc-emoji-wiggle{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-12deg) scale(1.12)}45%{transform:rotate(10deg) scale(1.16)}70%{transform:rotate(-6deg) scale(1.08)}}
+@keyframes sc-emoji-pop{0%{transform:scale(.45) rotate(-20deg);opacity:0}65%{transform:scale(1.28) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes sc-emoji-spark{0%,100%{opacity:.45;filter:drop-shadow(0 0 0 transparent)}50%{opacity:1;filter:drop-shadow(0 4px 8px #e7bd6655)}}
+@keyframes sc-emoji-particle{0%{opacity:0;transform:translate(-50%,-50%) rotate(0) scale(.35)}12%{opacity:1}78%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + cos(var(--sc-angle))*var(--sc-distance)),calc(-50% + sin(var(--sc-angle))*var(--sc-distance))) rotate(var(--sc-spin)) scale(1.25)}}
+.sc-emoji-burst{position:fixed;z-index:10030;width:1px;height:1px;pointer-events:none}
+.sc-emoji-particle{position:absolute;left:0;top:0;font-size:19px;line-height:1;filter:drop-shadow(0 3px 5px #244b3928);animation:sc-emoji-particle .92s cubic-bezier(.16,1,.3,1) both;will-change:transform,opacity}
+.sc-motion-ready .wave-mark{display:inline-block;transform-origin:65% 70%;animation:sc-emoji-wiggle 2.8s ease-in-out infinite,sc-emoji-spark 3.2s ease-in-out infinite}
+.sc-motion-ready .floating-label>span,.sc-motion-ready .subject-symbol,.sc-motion-ready .big-subject{display:inline-grid;place-items:center;transform-origin:center;animation:sc-emoji-float 3.2s ease-in-out infinite}
+.sc-motion-ready .subject-card:nth-child(2n) .subject-symbol{animation-delay:-1.1s}
+.sc-motion-ready .subject-card:nth-child(3n) .subject-symbol{animation-delay:-2s}
+.sc-motion-ready .stat-icon{animation:sc-emoji-pop .65s var(--sc-motion-curve) both,sc-emoji-float 4s 1s ease-in-out infinite}
+.sc-motion-ready .stat:nth-child(2) .stat-icon{animation-delay:.08s,1.08s}
+.sc-motion-ready .stat:nth-child(3) .stat-icon{animation-delay:.16s,1.16s}
+.sc-motion-ready .stat:nth-child(4) .stat-icon{animation-delay:.24s,1.24s}
+.sc-motion-ready .stat-spark{display:inline-block;animation:sc-emoji-float 2.5s ease-in-out infinite}
+.sc-motion-ready .mini-orbit,.sc-motion-ready .hero-label>svg,.sc-motion-ready .eyebrow>svg{animation:sc-emoji-wiggle 4s ease-in-out infinite}
+.sc-motion-ready .brand-mark>svg{transform-origin:center;animation:sc-emoji-float 3.8s ease-in-out infinite}
+.sc-motion-ready .notification i{transform-origin:center}
+.sc-motion-ready .subject-card:hover .subject-symbol,.sc-motion-ready .floating-label:hover>span{animation:sc-emoji-pop .42s var(--sc-motion-curve) both}
+.sc-motion-ready .streak svg{animation:sc-emoji-wiggle 1.8s ease-in-out infinite}
+.sc-motion-ready .teacher-inline>svg{animation:sc-emoji-float 3.6s ease-in-out infinite}
+.sc-motion-ready .explore-strip>div>svg{animation:sc-emoji-wiggle 3.4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.sc-emoji-burst{display:none!important}.sc-motion-ready .wave-mark,.sc-motion-ready .floating-label>span,.sc-motion-ready .subject-symbol,.sc-motion-ready .big-subject,.sc-motion-ready .stat-icon,.sc-motion-ready .stat-spark,.sc-motion-ready .mini-orbit,.sc-motion-ready .brand-mark>svg,.sc-motion-ready .streak svg,.sc-motion-ready .teacher-inline>svg,.sc-motion-ready .explore-strip>div>svg{animation:none!important}}
+.reduce-motion .sc-emoji-burst{display:none!important}
+.reduce-motion .sc-motion-ready .wave-mark,.reduce-motion .sc-motion-ready .floating-label>span,.reduce-motion .sc-motion-ready .subject-symbol,.reduce-motion .sc-motion-ready .big-subject,.reduce-motion .sc-motion-ready .stat-icon,.reduce-motion .sc-motion-ready .stat-spark{animation:none!important}
