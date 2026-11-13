@@ -1,0 +1,36 @@
+/* ================= Responsive ================= */
+@media (max-width:1180px){ .info.show{width:0} .info{position:absolute;left:0;top:0;bottom:0;width:360px!important;transform:translateX(-105%);transition:transform .55s var(--ease);box-shadow:var(--shadow);z-index:30} .info.show{transform:none} }
+@media (max-width:900px){
+  .shell{padding:0;gap:0;flex-direction:column-reverse}
+  .stage{border-radius:0}
+  .rail{width:100%;height:66px;flex-direction:row;padding:0 6px calc(env(safe-area-inset-bottom)) ;justify-content:space-around;background:var(--deep);z-index:20}
+  .brand,.rail-sp{display:none}
+  .rail-nav{flex-direction:row;gap:0;flex:1;justify-content:space-around}
+  .rail-ind{width:58px;height:52px;top:7px;right:auto}
+  .rbtn{height:52px;width:58px;margin-top:7px}
+  .rbtn .tip{display:none}
+  .role-av{width:38px;height:38px;margin:0 6px}
+  .rail > .rbtn{width:44px}
+  .list-col{width:100%;border:0;position:absolute;inset:0;transition:transform .5s var(--ease),filter .5s}
+  .chat-col{position:absolute;inset:0;z-index:10;transform:translateX(-100%);transition:transform .5s var(--ease);box-shadow:var(--shadow)}
+  .stage.open .chat-col{transform:none}
+  .stage.open .list-col{transform:translateX(30%);filter:brightness(.75)}
+  .back{display:grid}
+  .msgs{padding:12px 10px}
+  .comp-wrap{padding:6px 8px 10px}
+  .emop,.cmdp,.mentp{right:8px;left:8px;width:auto}
+  .attm{left:12px}
+  .bub{max-width:86%}
+  .sum-btn span{display:none}
+  .sdown{bottom:90px;left:14px}
+  .pip{width:250px;left:12px;bottom:80px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.dchip{min-width:104px;text-align:center;background:color-mix(in srgb,var(--deep) 62%,var(--bg))!important}
+.list-col{overflow:hidden}
+.sheet:not(.show){visibility:hidden;transition:transform .55s var(--ease),visibility 0s .55s}
+.info-in > *{flex-shrink:0}
+.bub.card > .meta{position:static!important;float:none!important;display:flex;width:fit-content;margin:-4px 12px 8px auto}
+.banner:not(.show){transform:translate(-50%,calc(-100% - 50px))}
+@media (max-width:900px){.rail{transition:height .45s var(--ease)}.shell:has(.stage.open) .rail{height:0;overflow:hidden;padding:0}}
+.typing-row .ra{width:36px;flex-shrink:0;display:flex;align-items:flex-end}.typing-row .ra .av{width:36px;height:36px;font-size:13px}

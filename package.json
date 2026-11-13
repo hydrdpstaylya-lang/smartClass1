@@ -10,7 +10,9 @@
     "dev": "node --env-file-if-exists=.env server/index.mjs --dev",
     "build": "vite build",
     "start": "node --env-file-if-exists=.env server/index.mjs",
-    "test": "vitest run && node --test tests/server.test.mjs tests/accounts.test.mjs tests/school.test.mjs tests/ollama-start.test.mjs tests/openrouter-start.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:chat": "node --test tests/chat-model.test.mjs tests/chat-api.test.mjs",
+    "dev:messenger": "node scripts/dev-messenger.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

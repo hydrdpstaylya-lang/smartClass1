@@ -1,0 +1,36 @@
+/* =========================================================
+   SmartClass گفتگو — Design tokens (هماهنگ با SmartClass Pro)
+   ========================================================= */
+:root{
+  --deep:#102c29; --deep2:#0b211f; --deep-line:#315046; --rail-ink:#a8c1b4;
+  --mint:#d5f4e4; --mint2:#c7f2df; --mint-ink:#1e5845;
+  --bg:#f4f8f6; --panel:#ffffff; --panel2:#fbfcfb; --ink:#183c36; --muted:#7d958b; --line:#e0ebe5;
+  --green:#16866f; --green2:#258b70; --green-d:#0e5449; --soft:#e8f5ee;
+  --orange:#efa457; --gold:#e6b55b; --sky:#5aa9d6; --violet:#8b7fd6; --rose:#e2737b; --danger:#d9534f;
+  --out:#dcf5e8; --out-ink:#143a31; --out-meta:#2b9a7b; --in:#ffffff; --in-ink:#183c36;
+  --hover:rgba(22,134,111,.06); --shadow:0 18px 50px -12px rgba(16,44,41,.25),0 4px 14px rgba(16,44,41,.08);
+  --shadow-s:0 1px 2px rgba(16,44,41,.08),0 2px 8px rgba(16,44,41,.05);
+  --glass:rgba(255,255,255,.78); --glass-line:rgba(255,255,255,.6);
+  --w1:#e4f0e9; --w2:#cfeee0; --w3:#fff3dc; --w4:#d4e9f2; --pat:.10;
+  --ease:cubic-bezier(.22,.8,.2,1); --ease-io:cubic-bezier(.65,0,.35,1); --spring:cubic-bezier(.34,1.56,.64,1); --spring2:cubic-bezier(.2,1.4,.4,1);
+  --r:20px;
+}
+[data-theme="dark"]{
+  --deep:#0a1716; --deep2:#071110; --deep-line:#23403a;
+  --bg:#0e1c1b; --panel:#132523; --panel2:#101f1e; --ink:#e0eee8; --muted:#8fa99d; --line:#23403a;
+  --green:#65c7a8; --green2:#4fb795; --green-d:#a8ead1; --soft:#1b3632; --mint:#1f4a3f; --mint-ink:#bff0dc;
+  --out:#1f5547; --out-ink:#eafff6; --out-meta:#9fe6cc; --in:#1a302d; --in-ink:#e0eee8;
+  --hover:rgba(101,199,168,.07); --shadow:0 18px 50px -10px rgba(0,0,0,.6),0 4px 14px rgba(0,0,0,.3);
+  --shadow-s:0 1px 2px rgba(0,0,0,.3);
+  --glass:rgba(19,37,35,.8); --glass-line:rgba(255,255,255,.06);
+  --w1:#0f2522; --w2:#123a33; --w3:#2a2a1a; --w4:#10303a; --pat:.05;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Vazirmatn',Tahoma,sans-serif;background:var(--deep);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased;font-feature-settings:"ss01"}
+button{font-family:inherit;border:0;background:none;color:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit;color:inherit}
+svg{display:block;flex-shrink:0}
+::selection{background:var(--mint);color:var(--mint-ink)}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:rgba(125,149,139,.35);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
+.ltr{direction:ltr;unicode-bidi:isolate}

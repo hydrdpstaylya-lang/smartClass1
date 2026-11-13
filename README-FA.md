@@ -103,3 +103,29 @@ AI_ACCESS_CODE=a_long_private_access_code
 - **`db:false`:** `SUPABASE_URL` و `SUPABASE_SERVICE_ROLE_KEY` تنظیم نشده‌اند.
 - **صفحه سفید:** F12 → Console را باز کن، خطای نخست را بررسی کن و `Ctrl+Shift+R` بزن. بعد از تغییرات سرویس‌ورکر، از Application → Service Workers نسخه قدیمی را Unregister کن و Reload کن.
 - **Admin فقط قفل است:** با حساب جدید وارد شو و نقش `admin` را در SQL تنظیم کن.
+
+## پیام‌رسان مدرسه (گفتگوی کلاس)
+
+نشانی: `/messenger/` — از منوی سایت گزینهٔ «گفتگوی کلاس».
+
+### راه‌اندازی روی Supabase
+1. بعد از `database/setup.sql`، فایل `database/chat.sql` را در **SQL Editor** اجرا کنید. این فایل جدول‌های `sc_chat_profiles`، `sc_chats`، `sc_chat_members`، `sc_messages`، `sc_chat_files`، شمارندهٔ همگام‌سازی، RLS و سطل خصوصی `sc-chat` را می‌سازد.
+2. متغیرهای `SUPABASE_URL` و `SUPABASE_SERVICE_ROLE_KEY` همان متغیرهای فعلی Vercel هستند؛ چیز تازه‌ای لازم نیست.
+3. هر کاربری که وارد حساب مدرسه شده باشد، کلاس‌ها و گفتگوهایش را می‌بیند. بدون ورود، صفحهٔ ورود و دکمهٔ «نسخهٔ نمایشی» نشان داده می‌شود.
+
+### ساختار
+| مسیر | نقش |
+|---|---|
+| `database/chat.sql` | جدول‌ها، تریگر `rev`، RLS و سطل فایل |
+| `server/chat-model.mjs` | قوانین خالص: مجوزها، اعتبارسنجی پیام، رأی آزمونک، تحویل و نمره تکلیف، پنهان‌سازی پاسخ‌های هم‌کلاسی‌ها |
+| `server-vercel/chat.mjs` | مسیرهای `/api/chat/sync`، `push`، `upload`، `file`، `avatar`، `directory` |
+| `public/messenger/` | رابط کاربری (۱۲ فایل CSS و ۳۲ فایل JS) و آداپتور سرور `295-server-adapter.js` |
+| `scripts/dev-messenger.mjs` | سرور آزمایشی محلی با Supabase شبیه‌سازی‌شده |
+| `tests/` | آزمون‌های `node:test` برای مدل و API |
+
+### اجرای محلی بدون Supabase
+```bash
+npm run dev:messenger      # http://localhost:5180/messenger/
+npm test                   # آزمون‌های مدل و API پیام‌رسان
+```
+سرور آزمایشی برای هر نقش (آموزگار، دانش‌آموز، مدیر) یک پیوند ورود چاپ می‌کند تا بتوانید در دو پنجره، گفتگوی هم‌زمان را امتحان کنید.

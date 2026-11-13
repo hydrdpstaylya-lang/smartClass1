@@ -1,9 +1,128 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>حساب کاربری | SmartClass Pro</title><link rel="icon" href="/favicon.svg"><style>*{box-sizing:border-box}body{margin:0;background:linear-gradient(150deg,#eaf9f7,#eff5ff);min-height:100vh;color:#173c40;font:15px Tahoma,Arial,sans-serif}main{max-width:490px;margin:35px auto;padding:26px;border:1px solid #d8e8eb;border-radius:22px;background:white;box-shadow:0 12px 38px #24747b14}h1{font-size:25px}p{line-height:2}.muted{color:#60777c}label{display:block;font-weight:bold;margin:15px 0 7px}input{width:100%;padding:13px;border:1px solid #bfd4d4;border-radius:10px;font:15px Tahoma}button{cursor:pointer;background:#176d7b;color:white;border:0;border-radius:11px;padding:12px 18px;font:14px Tahoma;margin:4px}.tabs{display:flex;flex-wrap:wrap}.tabs button{background:#e6f1f0;color:#20525a}.tabs .active{background:#176d7b;color:white}.hidden{display:none}#message{white-space:pre-wrap;border-radius:10px;background:#f3f8f9;padding:12px}.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.links a{color:#145f78;text-decoration:none;background:#e9f5f4;padding:10px;border-radius:10px}code{direction:ltr;display:block;overflow-wrap:anywhere;padding:12px;background:#f1f5f4;border-radius:8px}</style></head><body><main><h1>حساب کاربری SmartClass</h1><p class="muted">برای حفظ حریم خصوصی، نام کاربری مستعار انتخاب کن. نام خانوادگی، ایمیل و شماره تلفن لازم نیست.</p><div id="profile" class="hidden"><h2 id="greeting"></h2><p id="role"></p><button id="logout">خروج از حساب</button></div><div id="guest"><div class="tabs"><button data-mode="login" class="active">ورود</button><button data-mode="register">ساخت حساب</button><button data-mode="recover">بازیابی رمز</button></div><form id="accountForm"><div id="newName" class="hidden"><label>نام نمایشی</label><input name="name" maxlength="30" placeholder="مثلاً کاوشگر"></div><label>نام کاربری انگلیسی</label><input name="username" pattern="[-a-zA-Z0-9_]{3,30}" required minlength="3" maxlength="30" autocomplete="username"><div id="recoverCode" class="hidden"><label>کد بازیابی</label><input name="recoveryCode"></div><label id="passwordLabel">رمز عبور (حداقل ۱۰ نویسه)</label><input name="password" type="password" required minlength="10" autocomplete="current-password"><button type="submit">ادامه</button></form></div><p id="message" role="status"></p><div id="recovery" class="hidden"><p>کد بازیابی را در محل امن نزد خودت یا والدینت نگه دار؛ دوباره نمایش داده نمی‌شود.</p><code id="generatedCode"></code></div><div class="links"><a href="/">صفحه اصلی</a><a href="/admin-users/">مدیریت کاربران</a><a href="/teacher-exams/">آزمون‌ساز معلم</a></div></main><script>
-let mode='login';const $=id=>document.getElementById(id),message=$('message');const show=(id,v)=>$(id).classList.toggle('hidden',!v);
-async function request(path,data){const res=await fetch('/api/account/'+path,{method:data===undefined?'GET':'POST',headers:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});let json=await res.json();if(!res.ok)throw Error(json.error||'درخواست ناموفق بود.');return json}
-function view(u){show('profile',!!u);show('guest',!u);if(u){$('greeting').textContent='سلام '+u.name;$('role').textContent='نقش: '+({admin:'مدیر',teacher:'آموزگار',student:'دانش‌آموز'}[u.role]||'کاربر')}}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102c29">
+<title>ورود به حساب | SmartClass</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+:root{color-scheme:light;--ink:#183b38;--muted:#70817e;--line:#dce8e4;--green:#176b58;--mint:#eaf5f0;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 12% 10%,#d9eee6 0,transparent 34%),linear-gradient(145deg,#f0f6f2,#edf2f6);color:var(--ink);font:15px Tahoma,Arial,sans-serif}
+main{width:min(100%,450px);padding:34px;border:1px solid #dbe7e2;border-radius:24px;background:var(--paper);box-shadow:0 22px 70px #173e3214}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}.mark{width:46px;height:46px;border-radius:15px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:23px}.brand b{display:block;font-size:17px;letter-spacing:.4px}.brand small{display:block;color:var(--muted);margin-top:5px}
+h1{font-size:25px;margin:0 0 8px}.intro{margin:0 0 24px;color:var(--muted);line-height:1.9;font-size:13px}
+.tabs{display:flex;gap:6px;padding:5px;background:#f1f5f2;border-radius:13px;margin-bottom:22px}.tabs button{flex:1;border:0;border-radius:9px;padding:11px 7px;background:transparent;color:#55706a;font:13px Tahoma;cursor:pointer}.tabs button.active{background:#fff;color:var(--green);box-shadow:0 2px 8px #143d3210;font-weight:bold}
+label{display:block;font-weight:bold;font-size:13px;margin:16px 0 8px}
+input{width:100%;padding:14px 13px;border:1px solid #cbdad4;border-radius:12px;background:#fff;color:var(--ink);font:15px Tahoma;outline:none;transition:border .2s,box-shadow .2s}
+input:focus{border-color:#398c75;box-shadow:0 0 0 3px #398c7518}
+input.ltr{direction:ltr;text-align:left;font-family:Arial,sans-serif}
+.hint{display:block;color:var(--muted);font-size:11px;line-height:1.8;margin-top:7px}
+#identityToggle{margin-top:11px;padding:0;border:0;background:none;color:var(--green);font:12px Tahoma;cursor:pointer}
+button.primary{width:100%;margin-top:22px;border:0;border-radius:12px;padding:14px;background:var(--green);color:#fff;font:bold 15px Tahoma;cursor:pointer;transition:transform .18s,background .18s}
+button.primary:hover{background:#115342;transform:translateY(-1px)}button:disabled{opacity:.6;cursor:wait;transform:none}
+#message{min-height:42px;margin:15px 0 0;padding:11px 12px;border-radius:10px;background:#f3f7f5;color:#5d716b;white-space:pre-wrap;line-height:1.8;font-size:12px}
+.hidden{display:none!important}
+#profile{text-align:center;padding:18px 0}#profile h2{margin:12px 0 8px}#profile p{color:var(--muted);line-height:1.8}
+.links{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:22px}.links a{color:var(--green);text-decoration:none;background:var(--mint);padding:10px 12px;border-radius:10px;font-size:12px}
+#recovery{margin-top:15px;padding:13px;background:#f7f7ef;border-radius:12px;line-height:1.8;font-size:12px}code{direction:ltr;display:block;overflow-wrap:anywhere;margin-top:8px;padding:12px;background:#fff;border:1px solid #e2e7d8;border-radius:8px;user-select:all}
+@media(max-width:480px){main{padding:25px 20px;border-radius:20px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<main>
+ <div class="brand"><div class="mark">✦</div><div><b>SMARTCLASS</b><small>حساب امن مدرسه و پیام‌رسان گفتگو</small></div></div>
+ <section id="guest">
+  <h1 id="heading">خوش آمدی</h1>
+  <p class="intro" id="intro">برای ورود به پیام‌رسان مدرسه، شماره تلفن همراه و رمز عبورت را وارد کن.</p>
+  <div class="tabs">
+   <button type="button" data-mode="login" class="active">ورود</button>
+   <button type="button" data-mode="register">ساخت حساب</button>
+   <button type="button" data-mode="recover">بازیابی رمز</button>
+  </div>
+  <form id="accountForm">
+   <div id="newName" class="hidden"><label for="name">نام نمایشی</label><input id="name" name="name" maxlength="30" placeholder="نامی که در گفتگوها دیده می‌شود" autocomplete="name"></div>
+   <div id="phoneField"><label for="phone">شماره تلفن همراه</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" class="ltr" placeholder="+989123456789"><small class="hint">شماره را همراه با پیش‌شماره کشور وارد کن؛ نمونه: ‎+989123456789</small></div>
+   <div id="usernameField" class="hidden"><label for="username">نام کاربری قبلی</label><input id="username" name="username" autocomplete="username" class="ltr" maxlength="30" placeholder="نام کاربری انگلیسی"></div>
+   <button type="button" id="identityToggle">ورود با نام کاربری حساب قبلی</button>
+   <div id="recoverCode" class="hidden"><label for="code">کد بازیابی</label><input id="code" name="recoveryCode" autocomplete="one-time-code" class="ltr" placeholder="کد بازیابی حساب"></div>
+   <label id="passwordLabel" for="password">رمز عبور</label><input id="password" name="password" type="password" required minlength="10" maxlength="128" autocomplete="current-password" placeholder="حداقل ۱۰ نویسه">
+   <button class="primary" id="submit" type="submit">ورود به حساب</button>
+  </form>
+ </section>
+ <section id="profile" class="hidden">
+  <div class="mark" style="margin:auto">✓</div><h2 id="greeting"></h2><p id="role"></p>
+  <div style="margin:20px 0;padding:17px;border:1px solid var(--line);border-radius:15px;text-align:right">
+   <b style="font-size:14px">اتصال شماره تلفن به همین حساب</b>
+   <p style="font-size:12px;color:var(--muted);line-height:1.9">با این کار، بعداً می‌توانی با شماره تلفن و رمز فعلی وارد شوی؛ حساب و نقش مدرسه‌ات حفظ می‌شود.</p>
+   <form id="phoneForm">
+    <label for="bindPhone">شماره تلفن همراه</label><input id="bindPhone" type="tel" inputmode="tel" class="ltr" placeholder="+989123456789" required>
+    <label for="bindPassword">رمز فعلی حساب</label><input id="bindPassword" type="password" minlength="10" maxlength="128" required>
+    <button class="primary" id="bindPhoneBtn" type="submit">ثبت شماره برای ورود</button>
+   </form>
+  </div>
+  <button class="primary" id="logout" type="button" style="background:#edf3ef;color:#31564b">خروج از حساب</button>
+ </section>
+ <p id="message" role="status" aria-live="polite"></p>
+ <div id="recovery" class="hidden"><p>کد بازیابی را در محل امن نزد خودت یا والدینت نگه دار؛ این کد فقط همین بار نمایش داده می‌شود.</p><code id="generatedCode"></code></div>
+ <div class="links"><a href="/messenger/">رفتن به پیام‌رسان</a><a href="/">صفحه اصلی SmartClass</a></div>
+</main>
+<script>
+let mode='login',identity='phone';
+const $=id=>document.getElementById(id),message=$('message');
+const show=(id,v)=>$(id).classList.toggle('hidden',!v);
+async function request(path,data){
+ const res=await fetch('/api/account/'+path,{method:data===undefined?'GET':'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});
+ const json=await res.json().catch(()=>({}));
+ if(!res.ok)throw Error(json.error||'درخواست ناموفق بود.');return json
+}
+function view(u){
+ show('profile',!!u);show('guest',!u);
+ if(u){$('greeting').textContent='سلام '+u.name;$('role').textContent='نقش حساب: '+({admin:'مدیر مدرسه',teacher:'آموزگار',student:'دانش‌آموز'}[u.role]||'کاربر')}
+}
 async function load(){try{view((await request('me')).user);message.textContent=''}catch(e){view(null);message.textContent=e.message}}load();
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));show('newName',mode==='register');show('recoverCode',mode==='recover');$('passwordLabel').textContent=mode==='recover'?'رمز جدید (حداقل ۱۰ نویسه)':'رمز عبور (حداقل ۱۰ نویسه)';$('accountForm').elements.namedItem('password').autocomplete=mode==='login'?'current-password':'new-password';message.textContent=''});
-$('accountForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),data={username:f.get('username'),password:f.get('password'),name:f.get('name'),recoveryCode:f.get('recoveryCode')};message.textContent='در حال بررسی…';try{let r=await request(mode,data);view(r.user);message.textContent='عملیات موفق بود.';if(r.recoveryCode){show('recovery',true);$('generatedCode').textContent=r.recoveryCode}else show('recovery',false)}catch(e){message.textContent=e.message}};
-$('logout').onclick=async()=>{try{await request('logout',{});view(null);show('recovery',false);message.textContent='از حساب خارج شدی.'}catch(e){message.textContent=e.message}};
-</script></body></html>
+function renderMode(){
+ const register=mode==='register',recover=mode==='recover';
+ $('heading').textContent=register?'ساخت حساب مدرسه':recover?'بازیابی رمز عبور':'خوش آمدی';
+ $('intro').textContent=register?'برای ساخت حساب، شماره همراه و یک رمز عبور مطمئن ثبت کن.':recover?'با شماره ثبت‌شده و کد بازیابی، رمز تازه بساز.':'برای ورود به پیام‌رسان مدرسه، شماره تلفن همراه و رمز عبورت را وارد کن.';
+ show('newName',register);show('recoverCode',recover);
+ show('identityToggle',!register);
+ show('phoneField',identity==='phone');show('usernameField',identity==='username');
+ $('phone').required=identity==='phone';$('username').required=identity==='username';
+ $('passwordLabel').textContent=recover?'رمز عبور جدید (حداقل ۱۰ نویسه)':'رمز عبور (حداقل ۱۰ نویسه)';
+ $('password').autocomplete=mode==='login'?'current-password':'new-password';
+ $('submit').textContent=register?'ساخت حساب و ورود':recover?'ثبت رمز جدید':'ورود به حساب';
+}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
+ mode=b.dataset.mode;identity='phone';
+ document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));
+ renderMode();show('recovery',false);message.textContent='';
+});
+$('identityToggle').onclick=()=>{identity=identity==='phone'?'username':'phone';renderMode();message.textContent=''};
+$('accountForm').onsubmit=async e=>{
+ e.preventDefault();const f=new FormData(e.target),password=String(f.get('password')||'');
+ const data={password};
+ if(identity==='phone')data.phone=String(f.get('phone')||'').trim();else data.username=String(f.get('username')||'').trim();
+ if(mode==='register')data.name=String(f.get('name')||'').trim();
+ if(mode==='recover')data.recoveryCode=String(f.get('recoveryCode')||'').trim();
+ const btn=$('submit');btn.disabled=true;message.textContent='در حال بررسی…';
+ try{
+  const r=await request(mode,data);view(r.user);message.textContent=mode==='register'?'حساب ساخته شد و وارد شدی.':mode==='recover'?'رمز عبور تغییر کرد.':'با موفقیت وارد شدی.';
+  if(r.recoveryCode){show('recovery',true);$('generatedCode').textContent=r.recoveryCode}else show('recovery',false);
+  if(mode==='login'||mode==='register')setTimeout(()=>location.assign('/messenger/'),700);
+ }catch(err){message.textContent=err.message}
+ finally{btn.disabled=false}
+};
+$('phoneForm').onsubmit=async e=>{
+ e.preventDefault();const btn=$('bindPhoneBtn');btn.disabled=true;message.textContent='در حال ثبت شماره…';
+ try{await request('phone',{phone:$('bindPhone').value.trim(),password:$('bindPassword').value});$('bindPassword').value='';message.textContent='شماره با موفقیت به همین حساب متصل شد. از دفعات بعد می‌توانی با شماره وارد شوی.'}
+ catch(err){message.textContent=err.message}
+ finally{btn.disabled=false}
+};
+$('logout').onclick=async()=>{
+ try{await request('logout',{});view(null);mode='login';identity='phone';renderMode();show('recovery',false);message.textContent='از حساب خارج شدی.'}
+ catch(e){message.textContent=e.message}
+};
+renderMode();
+</script>
+</body></html>

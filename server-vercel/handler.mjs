@@ -2,6 +2,7 @@ import {ApiError,send} from './db.mjs';
 import {status,aiRoute} from './ai.mjs';
 import {account,schoolUsers} from './accounts.mjs';
 import {exams} from './exams.mjs';
+import {chat} from './chat.mjs';
 export default async function handler(req,res){
  try{
   const u=new URL(req.url,'https://localhost'),route=u.searchParams.get('route');
@@ -13,6 +14,7 @@ export default async function handler(req,res){
   if(path.startsWith('/account/'))return await account(req,res,path);
   if(path.startsWith('/school/users'))return await schoolUsers(req,res,path);
   if(path.startsWith('/teacher-exams'))return await exams(req,res,path);
+  if(path.startsWith('/chat/'))return await chat(req,res,path);
   if(path.startsWith('/rooms')||path.startsWith('/school'))throw new ApiError(501,'کلاس زنده و مدیریت تکالیف هنوز به سرور دائمی منتقل نشده‌اند.');
   throw new ApiError(404,'این مسیر API موجود نیست.');
  }catch(e){if(!res.headersSent)send(res,e instanceof ApiError?e.status:e.status>=400&&e.status<=599?e.status:500,{error:e instanceof ApiError?e.message:e.status>=400&&e.status<=599?e.message:'سرور نتوانست درخواست را پردازش کند.'});}
