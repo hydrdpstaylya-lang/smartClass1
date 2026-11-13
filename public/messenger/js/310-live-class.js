@@ -1,6 +1,6 @@
 /* SmartClass real live classroom — Daily Prebuilt private rooms. */
 (()=>{
-  let frame=null,overlay=null,currentChat=null,loading=false;
+  let frame=null,overlay=null,currentChat=null,loading=false,switchingRoom=false;
   let scriptPromise=null;
   const $id=id=>document.getElementById(id);
   const notify=(message)=>{if(typeof toast==='function')toast(message,'🎥');else alert(message);};
@@ -39,6 +39,11 @@
   async function exitCall(endClass=false){
     const chatId=currentChat;
     const oldFrame=frame;
+    if(endClass&&chatId){
+      try{
+        await fetch('/api/chat/voice?chat='+encodeURIComponent(chatId),{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'breakouts-end',chat:chatId})});
+      }catch{}
+    }
     if(oldFrame){try{await oldFrame.leave();}catch{}}
     cleanup();
     if(endClass&&chatId){
@@ -86,7 +91,7 @@
         const status=shell.querySelector('.sc-call-state');
         if(status)status.textContent='اتصال برقرار شد · '+(chat.name||'کلاس');
       });
-      frame.on('left-meeting',()=>{if(frame)cleanup();});
+      frame.on('left-meeting',()=>{if(frame&&!switchingRoom)cleanup();});
       frame.on('error',event=>{
         const status=shell.querySelector('.sc-call-state');
         if(status)status.textContent='خطا در تماس: '+String(event?.errorMsg||'اتصال قطع شد').slice(0,120);
@@ -142,20 +147,24 @@
   async function switchRoom(access,label){
     if(!overlay||!access?.url||!access?.token)throw new Error('اطلاعات اتاق گروهی معتبر نیست.');
     const parent=overlay.querySelector('.sc-call-frame');
-    if(frame){try{await frame.leave();}catch{}try{frame.destroy();}catch{}}
-    const factory=window.Daily?.createFrame||window.DailyIframe?.createFrame;
-    frame=factory(parent,{showLeaveButton:true,showFullscreenButton:true,iframeStyle:{width:'100%',height:'100%',border:'0',borderRadius:'14px'}});
-    frame.on('joined-meeting',()=>{
-      const status=overlay?.querySelector('.sc-call-state');
-      if(status)status.textContent='اتصال برقرار شد · '+String(label||'اتاق گروهی');
-    });
-    frame.on('left-meeting',()=>{if(frame)cleanup();});
-    frame.on('error',event=>{
-      const status=overlay?.querySelector('.sc-call-state');
-      if(status)status.textContent='خطا در تماس: '+String(event?.errorMsg||'اتصال قطع شد').slice(0,120);
-    });
-    await frame.join({url:access.url,token:access.token});
-    return true;
+    switchingRoom=true;
+    try{
+      const old=frame;
+      if(old){try{await old.leave();}catch{}try{old.destroy();}catch{}}
+      const factory=window.Daily?.createFrame||window.DailyIframe?.createFrame;
+      frame=factory(parent,{showLeaveButton:true,showFullscreenButton:true,iframeStyle:{width:'100%',height:'100%',border:'0',borderRadius:'14px'}});
+      frame.on('joined-meeting',()=>{
+        const status=overlay?.querySelector('.sc-call-state');
+        if(status)status.textContent='اتصال برقرار شد · '+String(label||'اتاق گروهی');
+      });
+      frame.on('left-meeting',()=>{if(frame&&!switchingRoom)cleanup();});
+      frame.on('error',event=>{
+        const status=overlay?.querySelector('.sc-call-state');
+        if(status)status.textContent='خطا در تماس: '+String(event?.errorMsg||'اتصال قطع شد').slice(0,120);
+      });
+      await frame.join({url:access.url,token:access.token});
+      return true;
+    }finally{switchingRoom=false;}
   }
   async function returnMainRoom(){
     if(!currentChat)throw new Error('کلاس اصلی مشخص نیست.');
