@@ -183,58 +183,93 @@ function quizModal(){
   };
 }
 function sendAtt(){
-  const c = state.cur, list = {}; c.members.filter(id => P[id]?.role==='student').forEach(s => list[s] = s!=='s_amir');
-  pushOut({att:{list, done:false}});
+  const c = state.cur;
+  if(!canTeachUI() || !c || c.type!=='class') return toast('حضور و غیاب فقط برای آموزگار کلاس فعال است','🔒');
+  openTeacherAttendance(c.id);
 }
 
-/* Smart summary */
+/* Smart summary — generated from the real conversation, never seeded demo facts */
 function closeSum(){ $('#sumc').classList.remove('show'); }
-$('#sumBtn').onclick = e => {
-  e.stopPropagation(); const s = $('#sumc'); if(s.classList.contains('show')) return closeSum();
-  const c = state.cur, a = c.msgs.filter(m => m.assign).slice(-1)[0], q = c.msgs.filter(m => m.quiz).slice(-1)[0];
-  const items = [
-    ['📚','var(--soft)', 'درس امروز: «الگوهای عددی» شروع شد؛ جزوهٔ فصل ۲ و نقشهٔ ماجراجویی ارسال شد.'],
-    a && ['📝','color-mix(in srgb,var(--orange) 22%,transparent)', `تکلیف «${a.assign.title}» · ${fa(a.assign.subs.length)} از ${fa(a.assign.total)} تحویل · ${cdText(a.assign.due)} مانده`],
-    q && ['📊','color-mix(in srgb,var(--sky) 22%,transparent)', `آزمونک: «${q.quiz.q}» · ${fa(q.quiz.votes.reduce((x,y)=>x+y,0))} پاسخ`],
-    ['💬','color-mix(in srgb,var(--violet) 20%,transparent)', 'امیر دربارهٔ تمرین ۳ سؤال پرسید و خانم صادقی راهنمایی کرد.'],
-  ].filter(Boolean);
-  s.innerHTML = `<h4><span style="color:var(--green)">✦</span> خلاصهٔ هوشمند رایوا<button class="ibtn" style="margin-right:auto;width:30px;height:30px" onclick="closeSum()">✕</button></h4><ul>${items.map((x,i) => `<li style="animation-delay:${.15+i*.12}s"><i style="background:${x[1]}">${x[0]}</i><span>${esc(x[2])}</span></li>`).join('')}</ul>`;
-  s.classList.add('show');
+$('#sumBtn').onclick = async e => {
+  e.stopPropagation();
+  const box=$('#sumc');
+  if(box.dataset.loading==='1') return;
+  if(box.classList.contains('show')){ closeSum(); return; }
+  const c=state.cur;
+  if(!c) return;
+  const context=c.msgs.filter(m=>!m.sys&&!m.ai).slice(-24).map(m=>{
+    const who=isMe(m.by)?'من':(pname(m.by)||'عضو کلاس');
+    const parts=[];
+    if(m.t) parts.push(m.t);
+    if(m.assign) parts.push('تکلیف: '+m.assign.title+'، درس: '+(m.assign.subject||'نامشخص')+'، مهلت: '+new Date(m.assign.due).toLocaleString('fa-IR'));
+    if(m.quiz) parts.push('آزمونک: '+m.quiz.q+'، گزینه‌ها: '+(m.quiz.opts||[]).join('، '));
+    if(m.att) parts.push('حضور و غیاب ثبت شده');
+    if(m.grade) parts.push('کارنامه: '+m.grade.subject+'، نمره '+m.grade.score+' از '+(m.grade.max||20));
+    if(m.file) parts.push('فایل: '+m.file.name);
+    if(m.voice) parts.push('پیام صوتی');
+    return parts.length ? who+': '+parts.join(' | ') : '';
+  }).filter(Boolean).join('\n').slice(-9000);
+  box.classList.add('show');
+  if(!context){
+    box.innerHTML='<h4>✦ خلاصهٔ گفتگو</h4><div class="sum-result">هنوز پیام کافی برای خلاصه‌سازی در این گفتگو وجود ندارد.</div>';
+    return;
+  }
+  box.dataset.loading='1';box.setAttribute('aria-busy','true');
+  box.innerHTML='<h4>✦ خلاصهٔ هوشمند رایوا</h4><div class="sum-result">رایوا در حال بررسی پیام‌های واقعی این کلاس است…</div>';
+  try{
+    const response=await fetch('/api/ai',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'این متن، پیام‌های واقعی یک کلاس مدرسه است. آن را به فارسی خلاصه کن. فقط اطلاعات موجود را بنویس؛ نام‌ها، تکالیف و مهلت‌ها را دقیق نگه دار. موارد مهم، تکالیف باز و تصمیم‌های ثبت‌شده را جدا کن و چیزی را حدس نزن.\n\n'+context}]})});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error||'سرویس رایوا در دسترس نیست.');
+    const summary=String(data.text||'').trim();
+    if(!summary) throw new Error('رایوا خلاصه‌ای برنگرداند.');
+    box.innerHTML='<h4><span style="color:var(--green)">✦</span> خلاصهٔ واقعی گفتگو</h4><div class="sum-result">'+esc(summary).replace(/\r?\n/g,'<br>')+'</div>';
+  }catch(err){
+    box.innerHTML='<h4>✦ خلاصهٔ هوشمند رایوا</h4><div class="sum-result">خلاصه‌سازی انجام نشد: '+esc(err.message||'خطای ارتباط با رایوا')+'</div>';
+  }finally{
+    delete box.dataset.loading;box.removeAttribute('aria-busy');
+  }
 };
 
-/* Live class PiP */
+/* Live class — local animation remains demo-only; real accounts never get a fake call */
 let liveT = 0;
 function startLive(){
-  const c = state.cur; if(!c) return;
-  if(state.role==='teacher' && !c.live){ c.live = true; $('#livebar').classList.add('show'); pushMsg(c, {sys:'🎥 کلاس آنلاین شروع شد', ts:Date.now()}); }
+  const c=state.cur;
+  if(!c) return;
+  if(NET.on){
+    toast('تماس تصویری هنوز به سرویس امن جلسهٔ آنلاین متصل نشده است؛ این دکمه جلسهٔ ساختگی ایجاد نمی‌کند.','⚠️');
+    return;
+  }
+  if(state.role==='teacher'&&!c.live){c.live=true;$('#livebar').classList.add('show');pushMsg(c,{sys:'🎥 کلاس آنلاین شروع شد',ts:Date.now()});}
   joinLive();
 }
 function joinLive(){
-  const pip = $('#pip'), lc = state.cur;
-  // the teacher who runs this class leads the call; fall back to the demo teacher
-  const lead = (lc && lc.members.find(x => P[x]?.role==='teacher')) || (P.t_sadeghi ? 't_sadeghi' : meId());
-  const ppl = [lead, ...((lc ? lc.members.filter(x => P[x]?.role==='student') : STUDENTS).filter(x => x!==lead).slice(0,5))].filter(x => P[x]);
-  pip.innerHTML = `<div class="pip-h"><span class="rd" style="width:8px;height:8px;border-radius:50%;background:var(--danger);animation:blink 1s infinite"></span><b>کلاس آنلاین · ${esc(chatName(state.cur||chats[0]))}</b><small id="pipT">۰۰:۰۰</small></div>
-    <div class="pip-g">${ppl.map(id => `<div class="pip-p" data-id="${id}">${avHTML(id,'noon')}<span>${esc(id===meId()?'شما':P[id].name.split(' ').slice(-1)[0])}</span></div>`).join('')}</div>
+  if(NET.on){
+    toast('برای تماس واقعی باید سرویس جلسهٔ آنلاین مدرسه پیکربندی شود. فعلاً هیچ تماس یا میکروفونی شروع نشده است.','⚠️');
+    return;
+  }
+  const pip=$('#pip'),lc=state.cur;
+  const lead=(lc&&lc.members.find(x=>P[x]?.role==='teacher'))||(P.t_sadeghi?'t_sadeghi':meId());
+  const ppl=[lead,...((lc?lc.members.filter(x=>P[x]?.role==='student'):STUDENTS).filter(x=>x!==lead).slice(0,5))].filter(x=>P[x]);
+  pip.innerHTML=`<div class="pip-h"><span class="rd" style="width:8px;height:8px;border-radius:50%;background:var(--danger);animation:blink 1s infinite"></span><b>کلاس آنلاین · نسخهٔ نمایشی</b><small id="pipT">۰۰:۰۰</small></div>
+    <div class="pip-g">${ppl.map(id=>`<div class="pip-p" data-id="${id}">${avHTML(id,'noon')}<span>${esc(id===meId()?'شما':P[id].name.split(' ').slice(-1)[0])}</span></div>`).join('')}</div>
     <div class="pip-c"><button id="pMic" class="off" title="میکروفون"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg></button><button id="pHand" title="اجازه گرفتن" style="font-size:20px">✋</button><button id="pCam" class="off" title="دوربین">${SVGI.cam}</button><button class="end" id="pEnd" title="خروج"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 15.5c5-5 13-5 18 0l-2.4 2.4-3.6-1.6v-3a12 12 0 0 0-6 0v3l-3.6 1.6z"/></svg></button></div>`;
   pip.classList.add('show');
-  const t0 = Date.now(); clearInterval(liveT);
-  liveT = setInterval(() => {
-    const s = Math.floor((Date.now()-t0)/1000); $('#pipT').textContent = fa(`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`);
-    $$('.pip-p .av', pip).forEach(a => a.classList.remove('spk'));
-    const sp = Math.random() < .6 ? $(`.pip-p[data-id="${lead}"] .av`, pip) : pick($$('.pip-p .av', pip)); if(sp && !sp.closest(`[data-id="${meId()}"]`)) sp.classList.add('spk');
-  }, 700);
-  $('#pMic').onclick = e => { e.currentTarget.classList.toggle('off'); toast(e.currentTarget.classList.contains('off')?'میکروفون خاموش شد':'میکروفون روشن شد','🎙️'); };
-  $('#pCam').onclick = e => e.currentTarget.classList.toggle('off');
-  $('#pHand').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); burst(r.left+r.width/2, r.top, ['✋','✨'], 10); toast('درخواست اجازه برای معلم ارسال شد','✋'); };
-  $('#pEnd').onclick = () => { clearInterval(liveT); pip.classList.remove('show'); toast('از کلاس آنلاین خارج شدید','👋'); };
-  // drag
-  const h = $('.pip-h', pip); let d = null;
-  h.onpointerdown = e => { const r = pip.getBoundingClientRect(); d = {dx:e.clientX - r.left, dy:e.clientY - r.top}; pip.classList.add('dragging'); h.setPointerCapture(e.pointerId); };
-  h.onpointermove = e => { if(!d) return; pip.style.left = Math.max(8, Math.min(innerWidth - pip.offsetWidth - 8, e.clientX - d.dx))+'px'; pip.style.top = Math.max(8, Math.min(innerHeight - pip.offsetHeight - 8, e.clientY - d.dy))+'px'; pip.style.bottom = 'auto'; };
-  h.onpointerup = () => { if(!d) return; d = null; pip.classList.remove('dragging'); const r = pip.getBoundingClientRect(); pip.style.left = (r.left + r.width/2 < innerWidth/2 ? 20 : innerWidth - r.width - 20) + 'px'; };
+  const t0=Date.now();clearInterval(liveT);
+  liveT=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);$('#pipT').textContent=fa(`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`);
+    $$('.pip-p .av',pip).forEach(a=>a.classList.remove('spk'));
+    const sp=Math.random()<.6?$('.pip-p[data-id="'+lead+'"] .av',pip):pick($$('.pip-p .av',pip));if(sp&&!sp.closest('[data-id="'+meId()+'"]'))sp.classList.add('spk');
+  },700);
+  $('#pMic').onclick=e=>{e.currentTarget.classList.toggle('off');toast(e.currentTarget.classList.contains('off')?'میکروفون خاموش شد':'میکروفون روشن شد','🎙️');};
+  $('#pCam').onclick=e=>e.currentTarget.classList.toggle('off');
+  $('#pHand').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();burst(r.left+r.width/2,r.top,['✋','✨'],10);toast('درخواست اجازه برای معلم ارسال شد','✋');};
+  $('#pEnd').onclick=()=>{clearInterval(liveT);pip.classList.remove('show');toast('از نسخهٔ نمایشی خارج شدید','👋');};
+  const h=$('.pip-h',pip);let d=null;
+  h.onpointerdown=e=>{const r=pip.getBoundingClientRect();d={dx:e.clientX-r.left,dy:e.clientY-r.top};pip.classList.add('dragging');h.setPointerCapture(e.pointerId);};
+  h.onpointermove=e=>{if(!d)return;pip.style.left=Math.max(8,Math.min(innerWidth-pip.offsetWidth-8,e.clientX-d.dx))+'px';pip.style.top=Math.max(8,Math.min(innerHeight-pip.offsetHeight-8,e.clientY-d.dy))+'px';pip.style.bottom='auto';};
+  h.onpointerup=()=>{if(!d)return;d=null;pip.classList.remove('dragging');const r=pip.getBoundingClientRect();pip.style.left=(r.left+r.width/2<innerWidth/2?20:innerWidth-r.width-20)+'px';};
 }
-$('#joinBtn').onclick = joinLive;
+$('#joinBtn').onclick=joinLive;
 
 /* In-app banner */
 let banT = 0;
