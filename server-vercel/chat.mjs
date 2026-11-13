@@ -536,8 +536,13 @@ async function voice(req,res,u){
   let payload={};
   if(action==='hand_raise'||action==='hand_lower')payload={user:M.cid(u.id),name:voiceCleanText(u.name,80)};
   else if(action==='board_stroke'){
-    payload={stroke:b.stroke};
-    if(!Array.isArray(payload.stroke)||payload.stroke.length>180)throw new ApiError(400,'مسیر تخته معتبر نیست.');
+    const raw=b.stroke||{},points=Array.isArray(raw.points)?raw.points:[];
+    if(points.length<2||points.length>140)throw new ApiError(400,'مسیر تخته معتبر نیست.');
+    payload={stroke:{
+      points:points.map(p=>({x:Math.max(0,Math.min(1,Number(p?.x)||0)),y:Math.max(0,Math.min(1,Number(p?.y)||0))})),
+      color:/^#[0-9a-f]{6}$/i.test(String(raw.color||''))?String(raw.color):'#176b58',
+      width:Math.max(1,Math.min(20,Number(raw.width)||4))
+    }};
   }else if(action==='board_note')payload={text:voiceCleanText(b.text,400),x:Math.max(0,Math.min(1,Number(b.x)||0)),y:Math.max(0,Math.min(1,Number(b.y)||0))};
   else if(action==='quiz_start')payload={question:voiceCleanText(b.question,500),options:Array.isArray(b.options)?b.options.slice(0,5).map(x=>voiceCleanText(x,100)):[],quizId:randomToken(10)};
   else if(action==='quiz_end')payload={quizId:voiceCleanText(b.quizId,40)};
