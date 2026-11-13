@@ -64,6 +64,26 @@ function addRipple(event: PointerEvent) {
   ripple.style.top = `${event.clientY - rect.top}px`;
   button.appendChild(ripple);
   window.setTimeout(() => ripple.remove(), 720);
+
+  // A small celebratory emoji burst makes every primary interaction feel alive.
+  const emojiSet = ['✨','⭐','🚀','💫','🎉','🌟','📚','🧠'];
+  const burst = document.createElement('span');
+  burst.className = 'sc-emoji-burst';
+  burst.setAttribute('aria-hidden', 'true');
+  const count = button.matches('.primary,.circle-button,.raiva-send') ? 6 : 4;
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('span');
+    particle.className = 'sc-emoji-particle';
+    particle.textContent = emojiSet[(i + Math.floor(event.clientX / 37)) % emojiSet.length];
+    particle.style.setProperty('--sc-angle', `${(360 / count) * i - 90}deg`);
+    particle.style.setProperty('--sc-distance', `${34 + (i % 3) * 12}px`);
+    particle.style.setProperty('--sc-spin', `${(i % 2 ? 1 : -1) * (24 + i * 8)}deg`);
+    burst.appendChild(particle);
+  }
+  burst.style.left = `${event.clientX}px`;
+  burst.style.top = `${event.clientY}px`;
+  document.body.appendChild(burst);
+  window.setTimeout(() => burst.remove(), 1050);
   button.classList.remove('sc-pressed');
   requestAnimationFrame(() => button.classList.add('sc-pressed'));
   window.setTimeout(() => button.classList.remove('sc-pressed'), 240);
