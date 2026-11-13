@@ -333,6 +333,216 @@ async function liveCall(req,res,u){
   return send(res,200,{ok:true,...access,reused:true});
 }
 
+
+/* ---------- SmartClass Voice Studio: classroom events, permissions, consent and breakouts ---------- */
+async function dailyPresence(roomName){
+  const data=await dailyRequest('/rooms/'+encodeURIComponent(roomName)+'/presence','GET');
+  const list=Array.isArray(data.data)?data.data:Array.isArray(data.participants)?data.participants:[];
+  return list.filter(p=>p&&p.session_id&&p.user_id!==undefined);
+}
+async function dailyPermissions(roomName,updates){
+  if(!Object.keys(updates).length)return;
+  return dailyRequest('/rooms/'+encodeURIComponent(roomName)+'/update-permissions','POST',{data:updates});
+}
+async function broadcastVoice(roomName,event){
+  try{await dailyRequest('/rooms/'+encodeURIComponent(roomName)+'/send-app-message','POST',{data:{type:'smartclass-voice-event',event},recipient:'*'});}catch{}
+}
+async function voiceEvent(call,u,type,payload){
+  const row=(await db('sc_voice_events','','POST',{
+    chat_id:call.chat_id,room_name:call.room_name,actor:u.id,event_type:type,
+    payload:payload||{},created:now()
+  }))[0];
+  if(row)await broadcastVoice(call.room_name,{id:row.id,type:row.event_type,payload:row.payload,actor:M.cid(u.id),created:row.created});
+  return row;
+}
+async function voiceContext(chatId,u){
+  const {ctx,member,teach}=await needChat(chatId,u);
+  if(ctx.chat.type!=='class')throw new ApiError(400,'استودیوی صوتی فقط در کلاس مدرسه فعال است.');
+  const call=(await db('sc_chat_calls','select=*&chat_id='+eq(chatId)+'&limit=1'))[0];
+  if(!call||call.ended_at||call.expires_at<=now())throw new ApiError(404,'کلاس آنلاین فعالی وجود ندارد.');
+  return{ctx,member,teach,call};
+}
+function voiceCleanText(value,max=800){
+  return String(value??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').trim().slice(0,max);
+}
+async function voice(req,res,u){
+  if(req.method==='GET'){
+    const q=new URL(req.url,'https://x').searchParams;
+    const chatId=String(q.get('chat')||'');
+    const since=Math.max(0,Number(q.get('since'))||0);
+    const {ctx,teach,call}=await voiceContext(chatId,u);
+    const [events,consents,presence]=await Promise.all([
+      db('sc_voice_events','select=id,event_type,payload,actor,created&chat_id='+eq(chatId)+'&room_name='+eq(call.room_name)+'&id=gt.'+since+'&order=id.asc&limit=250'),
+      db('sc_voice_consents','select=user_id,allowed,updated&chat_id='+eq(chatId)+'&room_name='+eq(call.room_name)),
+      dailyPresence(call.room_name)
+    ]);
+    const members=new Map(ctx.members.map(m=>[String(m.user_id),ctx.people.get(m.user_id)]));
+    const self=consents.find(x=>String(x.user_id)===String(u.id));
+    const publicParticipants=presence.map(p=>{
+      const account=members.get(String(p.user_id));
+      return{
+        id:M.cid(Number(p.user_id)||p.user_id),
+        name:voiceCleanText(p.user_name||account?.name||'عضو کلاس',80),
+        role:account?.role||'student',
+        owner:!!p.owner,
+        network:voiceCleanText(p.networkQualityState||'unknown',20),
+        ...(teach?{sessionId:p.session_id}:{}),
+        ...(teach?{canSend:p.permissions?.canSend??[]}:{})
+      };
+    });
+    const breakoutRows=await db('sc_voice_breakouts','select=id,label,members,expires_at&chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null&expires_at=gt.'+now()+'&order=created.asc');
+    const ownBreakout=breakoutRows.find(x=>(x.members||[]).some(id=>String(id)===String(u.id)));
+    return send(res,200,{
+      ok:true,active:true,room:call.room_name,live:ctx.chat.live,
+      events:events.map(e=>({id:e.id,type:e.event_type,payload:e.payload,actor:M.cid(e.actor),created:e.created})),
+      next:events.length?events[events.length-1].id:since,
+      consents:teach?consents.map(c=>({user:M.cid(c.user_id),allowed:c.allowed,updated:c.updated})):[],
+      selfConsent:!!self?.allowed,
+      participants:publicParticipants,
+      breakouts:teach?breakoutRows.map(x=>({id:x.id,label:x.label,members:(x.members||[]).map(M.cid)})):ownBreakout?[{id:ownBreakout.id,label:ownBreakout.label,members:[]}]:[]
+    });
+  }
+  if(req.method!=='POST')throw new ApiError(405,'روش درخواست پشتیبانی نمی‌شود.');
+  rate('voice:'+u.id,180);
+  const b=await input(req,12000);
+  const action=voiceCleanText(b?.action,40);
+  const chatId=voiceCleanText(b?.chat,48);
+  const {ctx,member,teach,call}=await voiceContext(chatId,u);
+  const educator=M.isEducator(u)&&teach;
+  const nowAt=now();
+  if(action==='consent'){
+    await db('sc_voice_consents','on_conflict=chat_id,room_name,user_id','POST',{
+      chat_id:chatId,room_name:call.room_name,user_id:u.id,
+      allowed:!!b.allowed,updated:nowAt
+    },'resolution=merge-duplicates,return=minimal');
+    return send(res,200,{ok:true,allowed:!!b.allowed});
+  }
+  if(action==='transcription-start'){
+    if(!educator)throw new ApiError(403,'فقط آموزگار می‌تواند متن‌برداری زنده را شروع کند.');
+    const present=await dailyPresence(call.room_name);
+    const consents=await db('sc_voice_consents','select=user_id,allowed&chat_id='+eq(chatId)+'&room_name='+eq(call.room_name));
+    const allowed=new Set(consents.filter(x=>x.allowed).map(x=>String(x.user_id)));
+    const missing=present.filter(p=>!allowed.has(String(p.user_id)));
+    if(missing.length)throw new ApiError(409,'تا وقتی همهٔ افراد حاضر رضایت نداده‌اند، متن‌برداری آغاز نمی‌شود. افراد بدون رضایت: '+missing.map(p=>voiceCleanText(p.user_name||'عضو کلاس',60)).join('، '));
+    if(!present.length)throw new ApiError(409,'هنوز کسی به کلاس وصل نیست.');
+    return send(res,200,{ok:true,participants:present.map(p=>p.session_id)});
+  }
+  if(action==='transcript-line'){
+    if(!educator)throw new ApiError(403,'فقط آموزگار می‌تواند متن جلسه را ثبت کند.');
+    const text=voiceCleanText(b.text,1800);
+    if(!text)return send(res,200,{ok:true,ignored:true});
+    const present=await dailyPresence(call.room_name);
+    const consents=await db('sc_voice_consents','select=user_id,allowed&chat_id='+eq(chatId)+'&room_name='+eq(call.room_name));
+    const allowed=new Set(consents.filter(x=>x.allowed).map(x=>String(x.user_id)));
+    if(present.some(p=>!allowed.has(String(p.user_id))))throw new ApiError(409,'رضایت یکی از افراد حاضر برداشته شده است؛ متن‌برداری متوقف شد.');
+    const row=await voiceEvent(call,u,'transcript_line',{
+      text,speaker:voiceCleanText(b.speaker||u.name,80),timestamp:Number(b.timestamp)||nowAt
+    });
+    return send(res,200,{ok:true,id:row?.id});
+  }
+  if(action==='turn'){
+    if(!educator)throw new ApiError(403,'مدیریت نوبت صحبت فقط برای آموزگار است.');
+    const target=M.uid(b.user);
+    if(!target||!ctx.memberIds.includes(target))throw new ApiError(404,'دانش‌آموز عضو این کلاس نیست.');
+    const present=await dailyPresence(call.room_name);
+    const participant=present.find(p=>String(p.user_id)===String(target));
+    if(!participant)throw new ApiError(404,'این دانش‌آموز اکنون در اتاق زنده حضور ندارد.');
+    const grant=b.grant!==false;
+    await dailyPermissions(call.room_name,{[participant.session_id]:{canSend:grant?['audio','video']:['video']}});
+    const targetUser=ctx.people.get(target);
+    const row=await voiceEvent(call,u,grant?'turn_granted':'turn_revoked',{
+      user:M.cid(target),name:targetUser?.name||participant.user_name||'دانش‌آموز',grant
+    });
+    return send(res,200,{ok:true,eventId:row?.id,grant});
+  }
+  if(action==='mute-all'){
+    if(!educator)throw new ApiError(403,'بی‌صدا کردن کلاس فقط برای آموزگار است.');
+    const present=await dailyPresence(call.room_name),updates={};
+    present.filter(p=>!p.owner&&String(p.user_id)!==String(u.id)).forEach(p=>{updates[p.session_id]={canSend:['video']};});
+    await dailyPermissions(call.room_name,updates);
+    const row=await voiceEvent(call,u,'mute_all',{count:Object.keys(updates).length});
+    return send(res,200,{ok:true,count:Object.keys(updates).length,eventId:row?.id});
+  }
+  if(action==='breakouts-create'){
+    if(!educator)throw new ApiError(403,'ساخت اتاق گروهی فقط برای آموزگار است.');
+    const count=Math.max(2,Math.min(8,Math.floor(Number(b.count)||2)));
+    const students=ctx.studentIds.slice();
+    if(students.length<2)throw new ApiError(400,'برای ساخت اتاق گروهی دست‌کم دو دانش‌آموز لازم است.');
+    const size=Math.ceil(students.length/count),groups=[];
+    for(let i=0;i<count;i++){
+      const chunk=students.slice(i*size,(i+1)*size);
+      if(chunk.length)groups.push({label:'گروه '+(i+1),members:chunk});
+    }
+    const old=await db('sc_voice_breakouts','select=id,room_name&chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null');
+    for(const x of old){try{await dailyRequest('/rooms/'+encodeURIComponent(x.room_name),'DELETE')}catch{}}
+    if(old.length)await db('sc_voice_breakouts','chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null','PATCH',{ended_at:nowAt},'return=minimal');
+    const created=[];
+    try{
+      for(const group of groups){
+        const roomName='sc-group-'+randomToken(18);
+        const room=await dailyRequest('/rooms','POST',{name:roomName,privacy:'private',properties:{
+          exp:Math.floor(call.expires_at/1000),max_participants:16,
+          enable_prejoin_ui:true,enable_chat:true,enable_screenshare:true,enable_recording:false
+        }});
+        if(!room.url||!room.name)throw new ApiError(502,'سرویس تماس نتوانست یکی از اتاق‌های گروهی را بسازد.');
+        const row=(await db('sc_voice_breakouts','','POST',{
+          chat_id:chatId,parent_room_name:call.room_name,room_name:room.name,
+          room_url:room.url,label:group.label,members:group.members,
+          created:nowAt,expires_at:call.expires_at
+        }))[0];
+        created.push({id:row.id,label:row.label,members:group.members.map(M.cid)});
+      }
+    }catch(error){
+      for(const x of created){
+        const existing=(await db('sc_voice_breakouts','select=room_name&id='+eq(x.id)))[0];
+        if(existing)try{await dailyRequest('/rooms/'+encodeURIComponent(existing.room_name),'DELETE')}catch{}
+      }
+      throw error;
+    }
+    const row=await voiceEvent(call,u,'group_plan',{groups:created});
+    return send(res,200,{ok:true,groups:created,eventId:row?.id});
+  }
+  if(action==='breakout-join'){
+    const id=voiceCleanText(b.id,60);
+    const group=(await db('sc_voice_breakouts','select=*&id='+eq(id)+'&chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null&expires_at=gt.'+nowAt))[0];
+    if(!group)throw new ApiError(404,'اتاق گروهی فعالی وجود ندارد.');
+    if(!educator&&!(group.members||[]).some(x=>String(x)===String(u.id)))throw new ApiError(403,'این اتاق برای گروه دیگری است.');
+    const access=await createDailyToken({room_name:group.room_name,room_url:group.room_url,expires_at:group.expires_at},u,educator);
+    return send(res,200,{ok:true,...access,label:group.label,room:group.room_name});
+  }
+  if(action==='breakouts-end'){
+    if(!educator)throw new ApiError(403,'پایان دادن اتاق‌های گروهی فقط برای آموزگار است.');
+    const groups=await db('sc_voice_breakouts','select=id,room_name&chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null');
+    for(const group of groups){try{await dailyRequest('/rooms/'+encodeURIComponent(group.room_name),'DELETE')}catch{}}
+    if(groups.length)await db('sc_voice_breakouts','chat_id='+eq(chatId)+'&parent_room_name='+eq(call.room_name)+'&ended_at=is.null','PATCH',{ended_at:nowAt},'return=minimal');
+    await voiceEvent(call,u,'group_plan',{ended:true,count:groups.length});
+    return send(res,200,{ok:true,ended:groups.length});
+  }
+  const teacherOnly=new Set(['board_stroke','board_note','board_clear','quiz_start','quiz_end','quiz_grade','command_executed','summary_saved']);
+  if(teacherOnly.has(action)&&!educator)throw new ApiError(403,'این ابزار فقط برای آموزگار فعال است.');
+  const supported=new Set(['hand_raise','hand_lower','board_stroke','board_note','board_clear','quiz_start','quiz_end','quiz_answer','quiz_grade','command_executed','summary_saved']);
+  if(!supported.has(action))throw new ApiError(400,'فرمان استودیوی صوتی شناخته نشد.');
+  let payload={};
+  if(action==='hand_raise'||action==='hand_lower')payload={user:M.cid(u.id),name:voiceCleanText(u.name,80)};
+  else if(action==='board_stroke'){
+    payload={stroke:b.stroke};
+    if(!Array.isArray(payload.stroke)||payload.stroke.length>180)throw new ApiError(400,'مسیر تخته معتبر نیست.');
+  }else if(action==='board_note')payload={text:voiceCleanText(b.text,400),x:Math.max(0,Math.min(1,Number(b.x)||0)),y:Math.max(0,Math.min(1,Number(b.y)||0))};
+  else if(action==='quiz_start')payload={question:voiceCleanText(b.question,500),options:Array.isArray(b.options)?b.options.slice(0,5).map(x=>voiceCleanText(x,100)):[],quizId:randomToken(10)};
+  else if(action==='quiz_end')payload={quizId:voiceCleanText(b.quizId,40)};
+  else if(action==='quiz_answer')payload={quizId:voiceCleanText(b.quizId,40),answer:voiceCleanText(b.answer,500),student:M.cid(u.id),name:voiceCleanText(u.name,80)};
+  else if(action==='quiz_grade'){
+    const target=M.uid(b.user),score=Number(b.score);
+    if(!target||!ctx.memberIds.includes(target)||!Number.isFinite(score)||score<0||score>20)throw new ApiError(400,'نمره یا دانش‌آموز معتبر نیست.');
+    payload={quizId:voiceCleanText(b.quizId,40),user:M.cid(target),score,feedback:voiceCleanText(b.feedback,300)};
+  }else if(action==='command_executed')payload={command:voiceCleanText(b.command,160)};
+  else if(action==='summary_saved')payload={summary:voiceCleanText(b.summary,5000)};
+  const json=JSON.stringify(payload);
+  if(json.length>3800)throw new ApiError(413,'محتوای ارسالی برای استودیوی صوتی بیش از حد است.');
+  const row=await voiceEvent(call,u,action,payload);
+  return send(res,200,{ok:true,id:row?.id,event:{id:row?.id,type:action,payload,actor:M.cid(u.id),created:row?.created||nowAt}});
+}
+
 /* ---------- router ---------- */
 export async function chat(req,res,path){
   const u=await requireUser(req);
@@ -342,6 +552,7 @@ export async function chat(req,res,path){
   if(path==='/chat/file'&&req.method==='GET')return await wrap(()=>file(req,res,u));
   if(path==='/chat/avatar'&&req.method==='GET')return await wrap(()=>avatar(req,res,u));
   if(path==='/chat/call'&&req.method==='POST')return await wrap(()=>liveCall(req,res,u));
+  if(path==='/chat/voice'&&(req.method==='GET'||req.method==='POST'))return await wrap(()=>voice(req,res,u));
   if(path==='/chat/directory'&&req.method==='GET'){const ids=(await db('sc_chat_members','select=chat_id&user_id='+eq(u.id))).map(r=>r.chat_id);return send(res,200,{directory:await directory(u,ids)})}
   throw new ApiError(404,'مسیر پیام‌رسان وجود ندارد.');
 }
