@@ -244,3 +244,90 @@
 }
 .reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduce-motion .sc-reveal{opacity:1!important;transform:none!important}
+
+
+/* ── SmartClass Motion Studio: advanced site-wide animation layer ── */
+:root{--sc-motion-curve:cubic-bezier(.16,1,.3,1);--sc-motion-soft:cubic-bezier(.22,.68,0,1);--sc-glass:rgba(255,255,255,.68)}
+@keyframes sc-enter{0%{opacity:0;transform:translate3d(0,26px,0) scale(.985);filter:blur(5px)}100%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
+@keyframes sc-page-enter{0%{opacity:0;transform:translateY(12px);filter:blur(3px)}100%{opacity:1;transform:none;filter:blur(0)}}
+@keyframes sc-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes sc-shimmer{0%{background-position:180% 0}100%{background-position:-180% 0}}
+@keyframes sc-border-glow{0%,100%{opacity:.25}50%{opacity:.8}}
+@keyframes sc-ring-pulse{0%{transform:scale(.82);opacity:.65}100%{transform:scale(1.55);opacity:0}}
+@keyframes sc-sparkle{0%,100%{opacity:.45;transform:scale(.8) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(18deg)}}
+@keyframes sc-wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+@keyframes sc-breathe{0%,100%{box-shadow:0 0 0 0 rgba(32,143,118,0)}50%{box-shadow:0 0 0 7px rgba(32,143,118,.08)}}
+@keyframes sc-ripple{0%{width:0;height:0;opacity:.42}100%{width:250px;height:250px;opacity:0}}
+@keyframes sc-progress-sheen{0%{transform:translateX(130%)}100%{transform:translateX(-130%)}}
+@keyframes sc-toast-in{from{opacity:0;transform:translate3d(0,-12px,0) scale(.97)}to{opacity:1;transform:none}}
+@keyframes sc-modal-in{from{opacity:0;transform:translateY(16px) scale(.975)}to{opacity:1;transform:none}}
+@keyframes sc-icon-pop{0%{transform:scale(.7) rotate(-12deg)}65%{transform:scale(1.18) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes sc-gradient-flow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.sc-scroll-progress{position:fixed;z-index:10020;top:0;right:0;left:0;height:3px;transform:scaleX(0);transform-origin:right center;background:linear-gradient(90deg,#e9c783,#7bc9a1,#238e75);box-shadow:0 1px 9px #4caa8766;pointer-events:none}
+.sc-cursor-glow{position:fixed;z-index:2;top:0;left:0;width:300px;height:300px;border-radius:50%;pointer-events:none;opacity:0;transform:translate3d(calc(var(--sc-pointer-x, -500px) - 50%),calc(var(--sc-pointer-y, -500px) - 50%),0);background:radial-gradient(circle,rgba(93,184,139,.075),rgba(93,184,139,.025) 38%,transparent 70%);transition:opacity .25s;mix-blend-mode:multiply}
+.sc-cursor-glow.is-visible{opacity:1}
+.sc-page-enter{animation:sc-page-enter .42s var(--sc-motion-curve) both}
+.sc-motion-ready .sc-reveal{opacity:0;transform:translate3d(0,25px,0) scale(.985);filter:blur(4px);transition:opacity .7s var(--sc-motion-curve),transform .7s var(--sc-motion-curve),filter .7s var(--sc-motion-curve);transition-delay:var(--sc-stagger,0ms);will-change:transform,opacity}
+.sc-motion-ready .sc-reveal.sc-revealed{opacity:1;transform:none;filter:none;will-change:auto}
+.sc-motion-ready .subject-card,.sc-motion-ready .tool-card,.sc-motion-ready .lesson-card,.sc-motion-ready .universe-card,.sc-motion-ready .quest-card,.sc-motion-ready .achievement-card{transform-style:preserve-3d;transition:transform .32s var(--sc-motion-curve),box-shadow .32s ease,border-color .25s ease;position:relative;isolation:isolate}
+.sc-motion-ready .subject-card::after,.sc-motion-ready .tool-card::after,.sc-motion-ready .lesson-card::after,.sc-motion-ready .universe-card::after,.sc-motion-ready .quest-card::after,.sc-motion-ready .achievement-card::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;opacity:0;background:radial-gradient(260px circle at var(--sc-spot-x,50%) var(--sc-spot-y,50%),rgba(100,190,145,.17),transparent 65%);transition:opacity .3s ease}
+.sc-motion-ready .subject-card:hover::after,.sc-motion-ready .tool-card:hover::after,.sc-motion-ready .lesson-card:hover::after,.sc-motion-ready .universe-card:hover::after,.sc-motion-ready .quest-card:hover::after,.sc-motion-ready .achievement-card:hover::after{opacity:1}
+.sc-motion-ready .sc-tilting{transform:perspective(850px) rotateX(var(--sc-tilt-x,0deg)) rotateY(var(--sc-tilt-y,0deg)) translateY(-5px);box-shadow:0 18px 38px rgba(25,83,58,.13);z-index:2}
+.sc-motion-ready .panel,.sc-motion-ready .stat,.sc-motion-ready .explore-strip{transition:box-shadow .35s ease,border-color .3s ease,transform .35s var(--sc-motion-curve)}
+.sc-motion-ready .panel:hover{box-shadow:0 16px 42px rgba(30,75,52,.075);border-color:#d4e8db}
+.sc-motion-ready .stat:hover{transform:translateY(-5px) scale(1.012)}
+.sc-motion-ready .brand-mark{animation:sc-breathe 4.5s ease-in-out infinite}
+.sc-motion-ready .wave-mark{animation:sc-sparkle 3.2s ease-in-out infinite;transform-origin:center}
+.sc-motion-ready .hero-label{position:relative;overflow:hidden}
+.sc-motion-ready .hero-label::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,#ffffff38 48%,transparent 72%);background-size:220% 100%;animation:sc-shimmer 5s ease-in-out infinite}
+.sc-motion-ready .adventure-hero>img{transition:transform 1.2s var(--sc-motion-curve);will-change:transform}
+.sc-motion-ready .adventure-hero:hover>img{transform:scale(1.055)}
+.sc-motion-ready .adventure-hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(120deg,transparent 30%,#ffffff0b 48%,transparent 65%);background-size:220% 100%;animation:sc-shimmer 8s ease-in-out infinite}
+.sc-motion-ready .ai-hero{isolation:isolate}
+.sc-motion-ready .ai-hero::before{content:"";position:absolute;inset:-60%;z-index:-1;background:conic-gradient(from 0deg,transparent,#9ac9a733,transparent,#e7c77b22,transparent);animation:sc-orbit 28s linear infinite}
+.sc-motion-ready .ai-orb{animation:sc-float 5s ease-in-out infinite}
+.sc-motion-ready .ai-orb>i{animation:sc-orbit 13s linear infinite}
+.sc-motion-ready .ai-orb>b{animation:sc-orbit 19s linear infinite reverse}
+.sc-motion-ready .ai-orb>svg{animation:sc-sparkle 3.5s ease-in-out infinite}
+.sc-motion-ready .primary,.sc-motion-ready .secondary,.sc-motion-ready .text-button,.sc-motion-ready .icon-button,.sc-motion-ready .circle-button,.sc-motion-ready .tabs button,.sc-motion-ready .nav-link,.sc-motion-ready .raiva-send{position:relative;overflow:hidden;transition:transform .24s var(--sc-motion-curve),box-shadow .28s ease,background-color .25s ease,color .25s ease,border-color .25s ease}
+.sc-motion-ready .primary:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 10px 25px rgba(32,143,118,.25)}
+.sc-motion-ready .secondary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 9px 22px rgba(32,91,66,.11)}
+.sc-motion-ready .circle-button:hover{transform:scale(1.1) rotate(-5deg);box-shadow:0 8px 22px rgba(32,143,118,.3)}
+.sc-motion-ready .icon-button:hover svg,.sc-motion-ready .nav-link:hover>svg{animation:sc-icon-pop .38s var(--sc-motion-curve)}
+.sc-motion-ready .notification i{animation:sc-ring-pulse 2s ease-out infinite}
+.sc-motion-ready .new-dot{animation:sc-breathe 2.4s ease-in-out infinite}
+.sc-motion-ready .subject-symbol{transition:transform .35s var(--sc-motion-curve),box-shadow .35s ease}
+.sc-motion-ready .subject-card:hover .subject-symbol{transform:translateZ(16px) rotate(-8deg) scale(1.1);box-shadow:0 8px 16px #b7d7c04d}
+.sc-motion-ready .nav-link.active{position:relative}
+.sc-motion-ready .nav-link.active::before{content:"";position:absolute;right:0;top:20%;bottom:20%;width:3px;border-radius:5px;background:#5caa81;animation:sc-enter .35s var(--sc-motion-curve) both}
+.sc-motion-ready .tabs button.active{animation:sc-soft-pop .28s var(--sc-motion-curve) both}
+.sc-motion-ready .modal-backdrop{animation:sc-fade-up .22s ease both}
+.sc-motion-ready [role="dialog"],.sc-motion-ready .modal,.sc-motion-ready .modal-content{animation:sc-modal-in .32s var(--sc-motion-curve) both}
+.sc-motion-ready .notice{animation:sc-toast-in .4s var(--sc-motion-curve) both}
+.sc-motion-ready .progress-track>span{position:relative;overflow:hidden}
+.sc-motion-ready .progress-track>span::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffff88,transparent);animation:sc-progress-sheen 2.8s ease-in-out infinite}
+.sc-motion-ready .ring{transition:filter .35s ease}
+.sc-motion-ready .ring:hover{filter:drop-shadow(0 8px 14px #6ab38d44)}
+.sc-motion-ready .site-footer>span:first-child svg{animation:sc-float 4s ease-in-out infinite}
+.sc-motion-ready .mission-row:hover,.sc-motion-ready .search-results button:hover{transform:translateX(-4px);transition:transform .25s var(--sc-motion-curve)}
+.sc-motion-ready .raiva-message-body{animation:sc-enter .35s var(--sc-motion-curve) both}
+.sc-motion-ready .raiva-message.user .raiva-message-body{animation-delay:30ms}
+.sc-motion-ready .raiva-prompts button:hover{transform:translateY(-3px);box-shadow:0 8px 18px #24513b12}
+.sc-motion-ready .raiva-send:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px #167e6840}
+.sc-motion-ready .startup-loader__emblem-card{animation:sc-float 3.8s ease-in-out infinite}
+.sc-motion-ready .startup-loader__orbit--outer{animation:startup-spin 7s linear infinite}
+.sc-motion-ready .startup-loader__orbit--inner{animation:startup-spin 10s linear infinite reverse}
+.sc-ripple{position:absolute;z-index:5;display:block;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.42),rgba(255,255,255,.08) 55%,transparent 72%);transform:translate(-50%,-50%);animation:sc-ripple .68s ease-out forwards}
+.sc-motion-ready .sc-pressed{transform:scale(.965)!important}
+.sc-motion-ready .avatar{transition:transform .3s var(--sc-motion-curve),box-shadow .3s ease}
+.sc-motion-ready .avatar:hover{transform:scale(1.07);box-shadow:0 0 0 5px #6ab38d20}
+.sc-motion-ready input,.sc-motion-ready textarea,.sc-motion-ready select{transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}
+.sc-motion-ready input:focus,.sc-motion-ready textarea:focus,.sc-motion-ready select:focus{border-color:#7eb99a;box-shadow:0 0 0 4px rgba(74,160,111,.11)}
+.sc-motion-ready .empty-state,.sc-motion-ready .loading{animation:sc-enter .5s var(--sc-motion-curve) both}
+.sc-motion-ready .loading>span,.sc-motion-ready .thinking>span{animation:spin .8s linear infinite}
+@media(hover:none){.sc-cursor-glow{display:none}.sc-motion-ready .sc-tilting{transform:none}.sc-motion-ready .adventure-hero:hover>img{transform:none}}
+@media(max-width:760px){.sc-cursor-glow{display:none}.sc-motion-ready .sc-reveal{transform:translateY(14px);filter:none;transition-duration:.48s}.sc-motion-ready .subject-card:hover,.sc-motion-ready .panel:hover,.sc-motion-ready .stat:hover{transform:none}.sc-scroll-progress{height:2px}}
+@media(prefers-reduced-motion:reduce){.sc-cursor-glow,.sc-scroll-progress{display:none!important}.sc-motion-ready .sc-reveal{opacity:1!important;transform:none!important;filter:none!important}.sc-motion-ready *,.sc-motion-ready *::before,.sc-motion-ready *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.reduce-motion .sc-cursor-glow,.reduce-motion .sc-scroll-progress{display:none!important}
+.reduce-motion .sc-reveal{opacity:1!important;transform:none!important;filter:none!important}
+.reduce-motion .sc-motion-ready *,.reduce-motion .sc-motion-ready *::before,.reduce-motion .sc-motion-ready *::after{animation:none!important;transition:none!important}
