@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import StartupLoader from './components/StartupLoader'
 import './style.css'
+import './animations'
 import './lab/lab.css'
 import {initializeAccount} from './state/account'
 const root=createRoot(document.getElementById('root')!);
