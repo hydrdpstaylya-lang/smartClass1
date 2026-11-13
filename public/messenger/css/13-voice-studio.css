@@ -1,0 +1,63 @@
+/* SmartClass Voice Studio */
+.vs-root{position:fixed;inset:0;z-index:10080;display:flex;flex-direction:column;background:var(--panel);color:var(--ink);direction:rtl;font-family:inherit}
+.vs-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line)}
+.vs-header>div:first-child,.vs-header>div:last-child{display:flex;align-items:center;gap:10px}
+.vs-logo{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--soft);font-size:22px}
+.vs-header b,.vs-header small{display:block}.vs-header b{font-size:14px}.vs-header small{font-size:10px;color:var(--muted);margin-top:4px}
+.vs-header button{width:36px;height:36px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--ink);cursor:pointer}
+.vs-live{color:var(--green);font-size:10px}
+.vs-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;flex:1;min-height:0;overflow:hidden}
+.vs-layout>main{display:flex;flex-direction:column;min-width:0;min-height:0;padding:14px;background:var(--panel2)}
+.vs-stage-label{display:flex;justify-content:space-between;margin-bottom:9px;font-size:12px;font-weight:800}.vs-stage-label small{color:var(--muted);font-size:10px;font-weight:400}
+.vs-stage{display:flex;flex:1;min-height:240px;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#111}
+.vs-stage>.sc-call-frame{width:100%;height:100%;min-height:250px}.vs-stage>.sc-call-frame iframe{width:100%;height:100%;border:0}
+.vs-main-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;color:var(--muted);font-size:10px}
+.vs-main-foot button,.vs-tabs button,.vs-section button{border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);padding:8px 10px;font:inherit;font-size:10px;cursor:pointer}
+.vs-layout>aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}
+.vs-tabs{display:flex;gap:4px;flex-wrap:wrap;padding:10px;border-bottom:1px solid var(--line)}
+.vs-tabs button{background:var(--panel2);color:var(--muted)}.vs-tabs button.active{background:var(--soft);color:var(--green);font-weight:800}
+.vs-pages{flex:1;min-height:0;overflow:auto;padding:13px}.vs-page{display:none}.vs-page.active{display:block}
+.vs-page h3{margin:13px 0 8px;font-size:13px}
+.vs-list{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.vs-person,.vs-request,.vs-consent,.vs-answer,.vs-group,.vs-question{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.vs-person>i{width:8px;height:8px;flex:none;border-radius:50%;background:#18a56e}
+.vs-person>span{flex:1;min-width:0}.vs-person b,.vs-person small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vs-person b,.vs-request span,.vs-answer b,.vs-group b{font-size:11px}.vs-person small,.vs-group small{font-size:9px;color:var(--muted);margin-top:4px}
+.vs-person div{display:flex;gap:4px}.vs-person button,.vs-request button,.vs-answer button,.vs-group button{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--green);padding:6px 8px;font:inherit;font-size:9px;cursor:pointer}
+.vs-person button:disabled{opacity:.4;cursor:not-allowed}
+.vs-request{justify-content:space-between}.vs-request small{font-size:9px;color:var(--muted)}
+.vs-consent{justify-content:space-between;font-size:10px}.vs-consent .yes{color:#168257}.vs-consent .no{color:#ad7922}
+.vs-primary,.vs-secondary,.vs-danger{width:100%;margin:5px 0;padding:10px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.vs-primary{background:var(--green);color:white}.vs-secondary{background:var(--soft);color:var(--green);border-color:var(--line)}.vs-danger{background:#b4231812;color:#b42318;border-color:#b4231825}
+.vs-note{font-size:9px;color:var(--muted);line-height:1.9;margin:9px 0 14px}
+.vs-empty{padding:13px;border:1px dashed var(--line);border-radius:11px;text-align:center;color:var(--muted);font-size:10px}
+.vs-question{display:block;background:var(--soft)}.vs-question b{font-size:10px;color:var(--green)}.vs-question p{font-size:12px;line-height:1.8}.vs-question small{color:var(--muted);font-size:9px}
+.vs-answer{justify-content:space-between;align-items:flex-start}.vs-answer p{font-size:11px;line-height:1.8;margin:5px 0}
+.vs-group{justify-content:space-between}.vs-group span{min-width:0}.vs-group b,.vs-group small{display:block}.vs-group small{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vs-field{display:flex;flex-direction:column;gap:6px;margin:10px 0;color:var(--muted);font-size:10px}
+.vs-field input,.vs-field select,.vs-note-form input{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font:inherit;font-size:11px}
+.vs-board-tools,.vs-note-form{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.vs-board-tools label{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10px}
+.vs-board-tools button,.vs-note-form button{padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font:inherit;font-size:10px}
+#vsCanvas{width:100%;height:340px;border:1px solid var(--line);border-radius:12px;background:white;touch-action:none;cursor:crosshair}
+.vs-note-form input{flex:1;min-width:0}
+.vs-transcript{max-height:220px;overflow:auto;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.vs-transcript p{font-size:11px;line-height:1.8;border-bottom:1px solid var(--line);padding-bottom:7px}.vs-transcript small{display:block;color:var(--muted);font-size:9px}
+.vs-summary{white-space:pre-wrap;padding:10px;border-radius:11px;background:var(--panel2);font-size:11px;line-height:1.9}
+.sc-call-overlay .vs-student-tools{padding:9px 12px;border-top:1px solid var(--line);background:var(--panel)}
+.vs-student-head,.vs-student-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.vs-student-head b{font-size:11px}.vs-student-head button,.vs-student-row button,.vs-student-tools form button{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--soft);color:var(--green);font:inherit;font-size:10px;font-weight:800}
+.vs-student-row{margin-top:6px}.vs-student-row>div{display:flex;flex-direction:column;gap:4px}.vs-student-row small{font-size:9px;color:var(--muted)}
+#vsStudentGroup{text-align:left}
+#vsStudentQuiz{margin-top:8px;padding:8px;border-radius:10px;background:var(--panel2);font-size:11px}
+#vsStudentQuiz form{display:flex;gap:6px;margin-top:7px}
+#vsStudentQuiz input{flex:1;min-width:0;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+#vsCaptions{display:flex;flex-direction:column;max-height:70px;overflow:auto;color:var(--muted);font-size:9px}
+#vsCaptions p{margin:3px 0}
+@media(max-width:800px){
+ .vs-layout{grid-template-columns:1fr;grid-template-rows:minmax(250px,40vh) minmax(0,1fr)}
+ .vs-layout>aside{border:0;border-top:1px solid var(--line)}
+ .vs-tabs{flex-wrap:nowrap;overflow-x:auto}.vs-tabs button{white-space:nowrap}
+ .vs-layout>main{padding:8px}.vs-stage-label{display:none}
+}
+@media(max-width:580px){.vs-person{flex-wrap:wrap}.vs-person div{width:100%}.vs-person div button{flex:1}#vsCanvas{height:250px}}
