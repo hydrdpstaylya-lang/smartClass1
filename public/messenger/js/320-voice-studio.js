@@ -260,7 +260,13 @@
  window.openVoiceStudio=async()=>{
    if(!teacher())return say('استودیو فقط برای معلم و مدیر فعال است.');
    try{
-     chat=String(state?.cur?.id||'');if(!chat||state.cur?.type!=='class')throw new Error('ابتدا یک کلاس را باز کن.');
+     let active=state?.cur;
+     if(!active||active.type!=='class'){
+       active=visibleChats().find(c=>c&&c.type==='class'&&!c.bot&&!c.saved);
+       if(!active)throw new Error('برای این حساب هنوز کلاسی ساخته نشده است.');
+       openChat(active.id);
+     }
+     chat=String(active.id);
      chat=String(live()?.chatId||chat);open();
    }catch(e){say(e.message||'استودیو باز نشد.');}
  };
