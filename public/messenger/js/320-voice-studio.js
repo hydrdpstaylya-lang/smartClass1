@@ -220,7 +220,25 @@
    $('#vsListen',root).onclick=listen;$('#vsSummary',root).onclick=summary;$('#vsDownload',root).onclick=downloadReport;
    $('#vsClear',root).onclick=async()=>{if(!confirm('تخته برای همه پاک شود؟'))return;try{await api('board_clear');drawBoard();}catch(e){say(e.message);}};
    $('#vsAddNote',root).onclick=async()=>{const text=$('#vsNote',root).value.trim();if(!text)return;try{await api('board_note',{text,x:.5,y:.5});$('#vsNote',root).value='';await poll();}catch(e){say(e.message);}};
-   setupBoard();startPoll();
+   setupBoard();
+   if(live()?.voiceReady?.()){live()?.attachHost?.($('#vsStage',root));startPoll();}
+   else showCallSetup();
+ }
+ async function showCallSetup(){
+   const stage=$('#vsStage',root);if(!stage)return;
+   stage.innerHTML='<div class="vs-connect-card"><span>🎥</span><h3>اتصال کلاس آنلاین</h3><p>برای فعال‌شدن اتاق خصوصی، سرویس تماس مدرسه باید به کلید محرمانهٔ Vercel متصل باشد. ضبط صدا خاموش می‌ماند.</p><button id="vsConnectCall">تلاش برای اتصال</button><small id="vsConnectStatus">سرویس تماس هنوز بررسی نشده است.</small></div>';
+   $('#vsConnectCall',root).onclick=async()=>{
+     const button=$('#vsConnectCall',root),status=$('#vsConnectStatus',root);
+     button.disabled=true;status.textContent='در حال اتصال به سرویس امن…';
+     try{
+       await live()?.ensureStart?.();
+       if(!live()?.voiceReady?.())throw new Error('اتاق تماس آماده نشد.');
+       live()?.attachHost?.(stage);status.textContent='اتصال برقرار شد.';startPoll();
+     }catch(e){
+       status.textContent=e.message||'سرویس تماس پیکربندی نشده است.';
+       button.disabled=false;
+     }
+   };
  }
  function studentPanel(){
    if(!document.documentElement.classList.contains('srv')||teacher())return;
@@ -243,9 +261,7 @@
    if(!teacher())return say('استودیو فقط برای معلم و مدیر فعال است.');
    try{
      chat=String(state?.cur?.id||'');if(!chat||state.cur?.type!=='class')throw new Error('ابتدا یک کلاس را باز کن.');
-     if(!live()?.voiceReady?.())await live()?.ensureStart?.();
-     if(!live()?.voiceReady?.())throw new Error('اتاق آنلاین هنوز آماده نیست.');
-     chat=String(live().chatId||chat);open();
+     chat=String(live()?.chatId||chat);open();
    }catch(e){say(e.message||'استودیو باز نشد.');}
  };
  window.addEventListener('sc-voice-events-updated',()=>{if(root){renderTeacher();drawBoard();}renderStudent();});
