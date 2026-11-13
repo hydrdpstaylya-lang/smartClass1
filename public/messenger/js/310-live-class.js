@@ -52,9 +52,10 @@
   function createShell(isOwner,chatName){
     const shell=document.createElement('div');
     shell.className='sc-call-overlay';
-    shell.innerHTML='<section class="sc-call-window" role="dialog" aria-modal="true" aria-label="کلاس آنلاین"><header class="sc-call-head"><div><b>کلاس آنلاین SmartClass</b><small class="sc-call-state">در حال اتصال امن به اتاق خصوصی…</small></div><div class="sc-call-actions">'+(isOwner?'<button type="button" class="sc-call-end">پایان کلاس برای همه</button>':'')+'<button type="button" class="sc-call-leave">خروج از جلسه</button></div></header><div class="sc-call-home"><div class="sc-call-frame"></div></div><footer class="sc-call-foot">ورود فقط با حساب عضو کلاس · ضبط جلسه خاموش است · قبل از فعال‌کردن دوربین و میکروفون، مجوز مرورگر را بررسی کن.</footer></section>';
+    shell.innerHTML='<section class="sc-call-window" role="dialog" aria-modal="true" aria-label="کلاس آنلاین"><header class="sc-call-head"><div><b>کلاس آنلاین SmartClass</b><small class="sc-call-state">در حال اتصال امن به اتاق خصوصی…</small></div><div class="sc-call-actions">'+(isOwner?'<button type="button" class="sc-call-voice">🎙️ استودیوی معلم</button><button type="button" class="sc-call-end">پایان کلاس برای همه</button>':'')+'<button type="button" class="sc-call-leave">خروج از جلسه</button></div></header><div class="sc-call-home"><div class="sc-call-frame"></div></div><footer class="sc-call-foot">ورود فقط با حساب عضو کلاس · ضبط جلسه خاموش است · قبل از فعال‌کردن دوربین و میکروفون، مجوز مرورگر را بررسی کن.</footer></section>';
     document.body.appendChild(shell);
     shell.querySelector('.sc-call-leave').addEventListener('click',()=>exitCall(false));
+    shell.querySelector('.sc-call-voice')?.addEventListener('click',()=>window.openVoiceStudio?.());
     shell.querySelector('.sc-call-end')?.addEventListener('click',()=>exitCall(true));
     shell.addEventListener('keydown',e=>{if(e.key==='Escape')exitCall(false);});
     overlay=shell;
