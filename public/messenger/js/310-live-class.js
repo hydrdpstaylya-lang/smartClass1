@@ -4,6 +4,7 @@
   let scriptPromise=null;
   const $id=id=>document.getElementById(id);
   const notify=(message)=>{if(typeof toast==='function')toast(message,'🎥');else alert(message);};
+  const errorText=(error)=>{const value=error?.errorMsg||error?.message||error?.error?.message||error?.details||error; if(typeof value==='string'&&value.trim())return value.trim().slice(0,220); try{return JSON.stringify(value).slice(0,220)}catch{return 'خطای نامشخص در اتصال سرویس تماس.'}};
   async function loadDaily(){
     if(window.Daily?.createFrame||window.DailyIframe?.createFrame)return;
     if(!scriptPromise){
@@ -101,7 +102,8 @@
       if(typeof refreshLiveClassButton==='function')refreshLiveClassButton();
     }catch(error){
       cleanup();
-      notify(error.message||'تماس زنده در دسترس نیست.');
+      console.error('[SmartClass live call]',error);
+      notify('خطای تماس: '+errorText(error));
     }finally{loading=false;}
   }
   function refreshLiveClassButton(){
