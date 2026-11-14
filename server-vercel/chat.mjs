@@ -312,7 +312,6 @@ async function liveCall(req,res,u){
     const roomName='sc-'+randomToken(22);
     const room=await dailyRequest('/rooms','POST',{name:roomName,privacy:'private',properties:{
       exp:Math.floor(expires/1000),
-      max_participants:40,
       enable_prejoin_ui:true,
       enable_chat:true,
       enable_screenshare:true,
@@ -492,7 +491,7 @@ async function voice(req,res,u){
       for(const group of groups){
         const roomName='sc-group-'+randomToken(18);
         const room=await dailyRequest('/rooms','POST',{name:roomName,privacy:'private',properties:{
-          exp:Math.floor(call.expires_at/1000),max_participants:16,
+          exp:Math.floor(call.expires_at/1000),
           enable_prejoin_ui:true,enable_chat:true,enable_screenshare:true,enable_recording:false
         }});
         if(!room.url||!room.name)throw new ApiError(502,'سرویس تماس نتوانست یکی از اتاق‌های گروهی را بسازد.');
