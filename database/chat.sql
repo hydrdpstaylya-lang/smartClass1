@@ -6,11 +6,17 @@
 -- so a client can ask "give me everything after revision N" with a single indexed range query.
 create sequence if not exists public.sc_chat_rev_seq;
 
-create or replace function public.sc_chat_bump_rev() returns trigger language plpgsql as $$
+create or replace function public.sc_chat_bump_rev()
+returns trigger
+language plpgsql
+set search_path = pg_catalog
+as $
 begin
   new.rev := nextval('public.sc_chat_rev_seq');
   return new;
-end $$;
+end
+$;
+revoke all on function public.sc_chat_bump_rev() from public, anon, authenticated;
 
 -- Public chat profile next to the account (title, avatar, presence).
 create table if not exists public.sc_chat_profiles(
