@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /account/
+Disallow: /admin-users/
+Disallow: /teacher-exams/
+Disallow: /messenger/
+
+Sitemap: https://smart-class1.vercel.app/sitemap.xml
